@@ -1,0 +1,254 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'listing_providers.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+String _$listingApiHash() => r'13b7e8874162ccf6a09c012a76fe5e3215666dc3';
+
+/// See also [listingApi].
+@ProviderFor(listingApi)
+final listingApiProvider = AutoDisposeProvider<ListingApi>.internal(
+  listingApi,
+  name: r'listingApiProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$listingApiHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef ListingApiRef = AutoDisposeProviderRef<ListingApi>;
+String _$listingRepositoryHash() => r'd5f4d6241af651b826effa6f3576ad53d63b1702';
+
+/// See also [listingRepository].
+@ProviderFor(listingRepository)
+final listingRepositoryProvider =
+    AutoDisposeProvider<ListingRepository>.internal(
+  listingRepository,
+  name: r'listingRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$listingRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef ListingRepositoryRef = AutoDisposeProviderRef<ListingRepository>;
+String _$categoriesHash() => r'a1529b08f57df3d220588d287dabe72ff9c6d6e0';
+
+/// See also [categories].
+@ProviderFor(categories)
+final categoriesProvider =
+    AutoDisposeFutureProvider<List<CategoryModel>>.internal(
+  categories,
+  name: r'categoriesProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$categoriesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef CategoriesRef = AutoDisposeFutureProviderRef<List<CategoryModel>>;
+String _$myListingsHash() => r'5dae5dda2ab1f02f808a28e69fbd9ea19b737c82';
+
+/// See also [myListings].
+@ProviderFor(myListings)
+final myListingsProvider =
+    AutoDisposeFutureProvider<List<ListingDetailModel>>.internal(
+  myListings,
+  name: r'myListingsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$myListingsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef MyListingsRef = AutoDisposeFutureProviderRef<List<ListingDetailModel>>;
+String _$listingDetailHash() => r'aa377412ad8f3eb44d0d2e1983c3eeb6ebda461d';
+
+/// Copied from Dart SDK
+class _SystemHash {
+  _SystemHash._();
+
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
+  }
+
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}
+
+/// See also [listingDetail].
+@ProviderFor(listingDetail)
+const listingDetailProvider = ListingDetailFamily();
+
+/// See also [listingDetail].
+class ListingDetailFamily extends Family<AsyncValue<ListingDetailModel>> {
+  /// See also [listingDetail].
+  const ListingDetailFamily();
+
+  /// See also [listingDetail].
+  ListingDetailProvider call(
+    String id,
+  ) {
+    return ListingDetailProvider(
+      id,
+    );
+  }
+
+  @override
+  ListingDetailProvider getProviderOverride(
+    covariant ListingDetailProvider provider,
+  ) {
+    return call(
+      provider.id,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'listingDetailProvider';
+}
+
+/// See also [listingDetail].
+class ListingDetailProvider
+    extends AutoDisposeFutureProvider<ListingDetailModel> {
+  /// See also [listingDetail].
+  ListingDetailProvider(
+    String id,
+  ) : this._internal(
+          (ref) => listingDetail(
+            ref as ListingDetailRef,
+            id,
+          ),
+          from: listingDetailProvider,
+          name: r'listingDetailProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$listingDetailHash,
+          dependencies: ListingDetailFamily._dependencies,
+          allTransitiveDependencies:
+              ListingDetailFamily._allTransitiveDependencies,
+          id: id,
+        );
+
+  ListingDetailProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.id,
+  }) : super.internal();
+
+  final String id;
+
+  @override
+  Override overrideWith(
+    FutureOr<ListingDetailModel> Function(ListingDetailRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ListingDetailProvider._internal(
+        (ref) => create(ref as ListingDetailRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        id: id,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ListingDetailModel> createElement() {
+    return _ListingDetailProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ListingDetailProvider && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin ListingDetailRef on AutoDisposeFutureProviderRef<ListingDetailModel> {
+  /// The parameter `id` of this provider.
+  String get id;
+}
+
+class _ListingDetailProviderElement
+    extends AutoDisposeFutureProviderElement<ListingDetailModel>
+    with ListingDetailRef {
+  _ListingDetailProviderElement(super.provider);
+
+  @override
+  String get id => (origin as ListingDetailProvider).id;
+}
+
+String _$nearbyListingsHash() => r'ffe13b95a0101af5552406e794c70d876f071779';
+
+/// See also [nearbyListings].
+@ProviderFor(nearbyListings)
+final nearbyListingsProvider =
+    AutoDisposeFutureProvider<List<NearbyListingModel>>.internal(
+  nearbyListings,
+  name: r'nearbyListingsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$nearbyListingsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef NearbyListingsRef
+    = AutoDisposeFutureProviderRef<List<NearbyListingModel>>;
+String _$mapSearchParamsHash() => r'60264140c95201cec38b0624a4eb3c3dfbe19428';
+
+/// See also [MapSearchParams].
+@ProviderFor(MapSearchParams)
+final mapSearchParamsProvider =
+    AutoDisposeNotifierProvider<MapSearchParams, MapSearchParamsState>.internal(
+  MapSearchParams.new,
+  name: r'mapSearchParamsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$mapSearchParamsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$MapSearchParams = AutoDisposeNotifier<MapSearchParamsState>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
