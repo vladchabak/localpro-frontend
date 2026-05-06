@@ -2,7 +2,7 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   static const String baseUrlAndroid = 'http://10.0.2.2:8080';
-  static const String baseUrlWeb = 'http://localhost:8080';
+  static const String baseUrlWeb = 'https://demo-production-2680.up.railway.app';
 
   static const String categories = '/api/categories';
   static const String listingsNearby = '/api/listings/nearby';
