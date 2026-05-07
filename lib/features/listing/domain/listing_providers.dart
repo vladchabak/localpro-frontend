@@ -52,8 +52,8 @@ class MapSearchParamsState {
 class MapSearchParams extends _$MapSearchParams {
   @override
   MapSearchParamsState build() => const MapSearchParamsState(
-        lat: 48.8566,
-        lng: 2.3522,
+        lat: 35.1856,  // Nicosia, Cyprus
+        lng: 33.3823,
         radiusKm: 5.0,
       );
 

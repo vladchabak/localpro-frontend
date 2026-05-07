@@ -53,7 +53,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         13.0,
       );
     } catch (_) {
-      // Keep default Paris coordinates
+      // Keep default Nicosia coordinates
     }
   }
 
