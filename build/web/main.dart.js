@@ -104943,7 +104943,7 @@ gOs(a){var s=this.a
 s=s==null?null:s.ga1Q(0)
 return s===!0},
 azB(a){var s="Bearer dev-token",r=t.N
-r=this.a=new A.ayY(A.b1C(A.boR(),B.v,B.kL,B.kL,new A.aza(this,a),A.aaR(),new A.azb(),new A.azc(),A.aaR(),A.aaR(),A.aaR(),A.aaR(),new A.azd(),null,B.kL,A.aB(["Authorization",s],r,r),"ws://localhost:8080/ws/websocket",!1,A.aB(["Authorization",s],r,t.z)))
+r=this.a=new A.ayY(A.b1C(A.boR(),B.v,B.kL,B.kL,new A.aza(this,a),A.aaR(),new A.azb(),new A.azc(),A.aaR(),A.aaR(),A.aaR(),A.aaR(),new A.azd(),null,B.kL,A.aB(["Authorization",s],r,r),"wss://demo-production-2680.up.railway.app/ws/websocket",!1,A.aB(["Authorization",s],r,t.z)))
 r.d=!0
 r.vK(0)},
 a8K(a,b){var s,r,q,p
