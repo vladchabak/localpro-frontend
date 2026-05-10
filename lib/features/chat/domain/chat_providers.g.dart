@@ -215,7 +215,7 @@ class _ChatMessagesProviderElement
   String get chatId => (origin as ChatMessagesProvider).chatId;
 }
 
-String _$chatMessageListHash() => r'31adec42b9be962540ab1e3fc79e1583549a07b6';
+String _$chatMessageListHash() => r'611424fc3bee9ed08ce5cc6ebb212a47c4930d61';
 
 abstract class _$ChatMessageList
     extends BuildlessAutoDisposeNotifier<List<MessageModel>> {

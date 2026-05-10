@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
+import '../../../core/api/api_endpoints.dart';
 import 'models/chat_model.dart';
 
 class StompService {
@@ -17,9 +18,7 @@ class StompService {
   void connect({required String userId}) {
     _client = StompClient(
       config: StompConfig(
-        url: kIsWeb
-            ? 'ws://localhost:8080/ws/websocket'
-            : 'ws://10.0.2.2:8080/ws/websocket',
+        url: kIsWeb ? ApiEndpoints.wsUrlWeb : ApiEndpoints.wsUrlAndroid,
         onConnect: (frame) {
           debugPrint('STOMP connected');
           _client!.subscribe(

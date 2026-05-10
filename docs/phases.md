@@ -1,0 +1,7 @@
+- [x] Phase 0 — pubspec.yaml + project structure + theme + router + Dio client
+- [ ] Phase 1 — Auth screens (Login, Splash, RegisterCompletion)
+- [ ] Phase 2 — Map screen (flutter_map, markers, bottom sheet, filters)
+- [ ] Phase 3 — ServiceCard + ListingDetail screen
+- [ ] Phase 4 — Chat (WebSocket + FCM)
+- [ ] Phase 5 — Provider dashboard + CreateListing
+- [ ] Phase 6 — Profile + polish + app icon

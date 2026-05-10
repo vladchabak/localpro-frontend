@@ -4,6 +4,9 @@ class ApiEndpoints {
   static const String baseUrlAndroid = 'http://10.0.2.2:8080';
   static const String baseUrlWeb = 'https://demo-production-2680.up.railway.app';
 
+  static const String wsUrlAndroid = 'ws://10.0.2.2:8080/ws/websocket';
+  static const String wsUrlWeb = 'wss://demo-production-2680.up.railway.app/ws/websocket';
+
   static const String categories = '/api/categories';
   static const String listingsNearby = '/api/listings/nearby';
   static const String listings = '/api/listings';

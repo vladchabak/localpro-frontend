@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'api_endpoints.dart';
 
@@ -18,14 +19,13 @@ class ApiClient {
       },
     ));
 
-    // JWT interceptor — adds Bearer token to every request
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // TODO: replace with real Firebase token when Firebase is configured
-        // final user = FirebaseAuth.instance.currentUser;
-        // final token = await user?.getIdToken() ?? 'dev-token';
-        const token = 'dev-token';
-        options.headers['Authorization'] = 'Bearer $token';
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final token = await user.getIdToken();
+          options.headers['Authorization'] = 'Bearer $token';
+        }
         handler.next(options);
       },
       onError: (error, handler) {

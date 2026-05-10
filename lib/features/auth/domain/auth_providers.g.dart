@@ -63,7 +63,21 @@ final currentUserProvider = AutoDisposeFutureProvider<UserModel>.internal(
 );
 
 typedef CurrentUserRef = AutoDisposeFutureProviderRef<UserModel>;
-String _$isAuthenticatedHash() => r'64f38646732ac6beefcd194d58aeb3815c7946cc';
+String _$authStateHash() => r'baf32c03854278f1e773e0d3f2cb50d9b6270837';
+
+/// See also [authState].
+@ProviderFor(authState)
+final authStateProvider = AutoDisposeStreamProvider<User?>.internal(
+  authState,
+  name: r'authStateProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$authStateHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef AuthStateRef = AutoDisposeStreamProviderRef<User?>;
+String _$isAuthenticatedHash() => r'352b50c9b1da7347097436e7aedde7644dd486b5';
 
 /// See also [isAuthenticated].
 @ProviderFor(isAuthenticated)

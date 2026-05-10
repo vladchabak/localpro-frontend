@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_colors.dart';
-import '../widgets/app_error_widget.dart';
 import '../../features/auth/domain/auth_providers.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/chat/presentation/chat_list_screen.dart';
@@ -83,7 +82,7 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(isAuthenticatedProvider);
+    final authState = ref.watch(authStateProvider);
 
     return authState.when(
       loading: () => const Scaffold(
@@ -106,16 +105,16 @@ class SplashScreen extends ConsumerWidget {
           ),
         ),
       ),
-      error: (e, _) => Scaffold(
-        body: AppErrorWidget(
-          message: 'Cannot connect to server.\nMake sure backend is running.',
-          onRetry: () => ref.invalidate(isAuthenticatedProvider),
-        ),
-      ),
-      data: (isAuth) {
+      error: (e, _) {
+        Future.microtask(() {
+          if (context.mounted) context.go('/auth/login');
+        });
+        return const Scaffold(backgroundColor: Colors.white);
+      },
+      data: (user) {
         Future.microtask(() {
           if (context.mounted) {
-            context.go(isAuth ? '/map' : '/auth/login');
+            context.go(user != null ? '/map' : '/auth/login');
           }
         });
         return const Scaffold(
@@ -161,29 +160,70 @@ class _HomeShellState extends State<HomeShell> {
     final path = GoRouterState.of(context).uri.path;
     return Scaffold(
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _locationToIndex(path),
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        elevation: 8,
-        onTap: (i) => context.go(_tabs[i]),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Catalog'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.card,
+          border: Border(top: BorderSide(color: AppColors.line)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _locationToIndex(path),
+          onTap: (i) => context.go(_tabs[i]),
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.map_outlined),
+              activeIcon: Icon(Icons.map),
+              label: 'Home',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.search_outlined),
+              activeIcon: Icon(Icons.search),
+              label: 'Search',
+            ),
+            BottomNavigationBarItem(
+              icon: _NavBadge(child: const Icon(Icons.chat_bubble_outline), count: 2),
+              activeIcon: _NavBadge(child: const Icon(Icons.chat_bubble), count: 2),
+              label: 'Messages',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class _NavBadge extends StatelessWidget {
+  final Widget child;
+  final int count;
+  const _NavBadge({required this.child, required this.count});
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    clipBehavior: Clip.none,
+    children: [
+      child,
+      if (count > 0)
+        Positioned(
+          top: -3, right: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            decoration: BoxDecoration(
+              color: AppColors.accent,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.card, width: 1.5),
+            ),
+            child: Text(
+              '$count',
+              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white, height: 1.2),
+            ),
+          ),
+        ),
+    ],
+  );
 }
 
 // Placeholder screens (replaced in later phases)

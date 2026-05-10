@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/api/api_client.dart';
 import '../data/auth_api.dart';
@@ -22,11 +23,11 @@ Future<UserModel> currentUser(CurrentUserRef ref) =>
     ref.watch(authRepositoryProvider).getMe();
 
 @riverpod
+Stream<User?> authState(AuthStateRef ref) =>
+    FirebaseAuth.instance.authStateChanges();
+
+@riverpod
 Future<bool> isAuthenticated(IsAuthenticatedRef ref) async {
-  try {
-    await ref.watch(authRepositoryProvider).getMe();
-    return true;
-  } catch (_) {
-    return false;
-  }
+  final user = await ref.watch(authStateProvider.future);
+  return user != null;
 }

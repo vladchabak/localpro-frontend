@@ -42,5 +42,19 @@
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
   <script src="flutter_bootstrap.js" async></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXAwtrTMu7U-55oHvK1BHuJNGjcjC3Ugo",
+      authDomain: "localpro-9e4f1.firebaseapp.com",
+      projectId: "localpro-9e4f1",
+      storageBucket: "localpro-9e4f1.firebasestorage.app",
+      messagingSenderId: "325919771624",
+      appId: "1:325919771634:web:79094bc10075e6335e796b"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </body>
 </html>

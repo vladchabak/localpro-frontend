@@ -234,7 +234,7 @@ final nearbyListingsProvider =
 
 typedef NearbyListingsRef
     = AutoDisposeFutureProviderRef<List<NearbyListingModel>>;
-String _$mapSearchParamsHash() => r'60264140c95201cec38b0624a4eb3c3dfbe19428';
+String _$mapSearchParamsHash() => r'376b1739628d037161b455939b1e2047c46a2967';
 
 /// See also [MapSearchParams].
 @ProviderFor(MapSearchParams)

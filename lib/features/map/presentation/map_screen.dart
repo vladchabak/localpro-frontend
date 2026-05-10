@@ -207,13 +207,13 @@ class _BottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        color: AppColors.paper,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 12,
-            offset: Offset(0, -4),
+            color: Color(0x1A0E1A1F),
+            blurRadius: 30,
+            offset: Offset(0, -8),
           ),
         ],
       ),
@@ -224,11 +224,11 @@ class _BottomSheet extends StatelessWidget {
             child: Center(
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 8),
-                width: 40,
+                width: 38,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
+                  color: AppColors.line,
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
             ),
@@ -260,17 +260,31 @@ class _ListingsContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            '${listings.length} service${listings.length == 1 ? '' : 's'} found',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${listings.length} services nearby',
+                    style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: AppColors.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Sorted by distance · live availability',
+                    style: TextStyle(fontSize: 12, color: AppColors.ink3),
+                  ),
+                ],
+              ),
+              const Text('Map', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         if (listings.isEmpty)
           const Padding(
             padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -278,17 +292,17 @@ class _ListingsContent extends StatelessWidget {
               child: Text(
                 'No services found in this area.\nTry increasing the search radius.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: AppColors.ink2),
               ),
             ),
           )
         else
           SizedBox(
-            height: 256,
+            height: 124,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
               itemCount: listings.length,
               itemBuilder: (_, i) => ServiceCard(listing: listings[i]),
             ),
@@ -330,20 +344,23 @@ class _PriceMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = listing.price != null
-        ? '\$${listing.price!.toStringAsFixed(0)}'
+        ? '€${listing.price!.toStringAsFixed(0)}'
         : 'Free';
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? AppColors.primary : AppColors.card,
           borderRadius: BorderRadius.circular(20),
+          border: isSelected ? null : Border.all(color: AppColors.primary, width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
-              blurRadius: 6,
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.30)
+                  : Colors.black.withValues(alpha: 0.10),
+              blurRadius: isSelected ? 14 : 6,
               offset: const Offset(0, 2),
             ),
           ],
@@ -351,9 +368,11 @@ class _PriceMarker extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : AppColors.textPrimary,
+            fontFamily: 'JetBrains Mono',
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+            color: isSelected ? Colors.white : AppColors.primary,
           ),
         ),
       ),
@@ -374,34 +393,27 @@ class _SearchBar extends StatelessWidget {
     return Container(
       height: 52,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.line),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.10),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+          BoxShadow(color: const Color(0xFF0E1A1F).withValues(alpha: 0.10), blurRadius: 24, offset: const Offset(0, 8)),
         ],
       ),
       child: Row(
         children: [
           const SizedBox(width: 14),
-          const Icon(Icons.search, color: AppColors.textSecondary, size: 20),
+          const Icon(Icons.search_rounded, color: AppColors.ink2, size: 20),
           const SizedBox(width: 8),
           const Expanded(
             child: Text(
-              'Search services...',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 15,
-              ),
+              'Try "cleaner near Ledra St."',
+              style: TextStyle(fontSize: 14, color: AppColors.ink3),
             ),
           ),
-          _RadiusDropdown(
-            radiusKm: radiusKm,
-            onChanged: onRadiusChanged,
-          ),
+          Container(width: 1, height: 18, color: AppColors.line),
+          const SizedBox(width: 8),
+          _RadiusDropdown(radiusKm: radiusKm, onChanged: onRadiusChanged),
           const SizedBox(width: 8),
         ],
       ),
@@ -436,26 +448,18 @@ class _RadiusDropdown extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.circular(8),
+          color: AppColors.primarySoft,
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               _label(radiusKm),
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
-              ),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
             ),
             const SizedBox(width: 2),
-            const Icon(
-              Icons.expand_more,
-              size: 16,
-              color: AppColors.textSecondary,
-            ),
+            const Icon(Icons.expand_more_rounded, size: 16, color: AppColors.primary),
           ],
         ),
       ),
@@ -516,24 +520,21 @@ class _FilterChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
+          color: isSelected ? AppColors.primary : AppColors.card,
+          borderRadius: BorderRadius.circular(999),
+          border: isSelected ? null : Border.all(color: AppColors.line),
+          boxShadow: isSelected
+              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.22), blurRadius: 14, offset: const Offset(0, 4))]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : AppColors.ink2,
           ),
         ),
       ),
