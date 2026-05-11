@@ -234,6 +234,264 @@ final nearbyListingsProvider =
 
 typedef NearbyListingsRef
     = AutoDisposeFutureProviderRef<List<NearbyListingModel>>;
+String _$createListingHash() => r'1cc47562dea1ff45b9cf58d36707ac3f9d3197a2';
+
+/// See also [createListing].
+@ProviderFor(createListing)
+const createListingProvider = CreateListingFamily();
+
+/// See also [createListing].
+class CreateListingFamily extends Family<AsyncValue<ListingDetailModel>> {
+  /// See also [createListing].
+  const CreateListingFamily();
+
+  /// See also [createListing].
+  CreateListingProvider call(
+    ListingRequest request,
+  ) {
+    return CreateListingProvider(
+      request,
+    );
+  }
+
+  @override
+  CreateListingProvider getProviderOverride(
+    covariant CreateListingProvider provider,
+  ) {
+    return call(
+      provider.request,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'createListingProvider';
+}
+
+/// See also [createListing].
+class CreateListingProvider
+    extends AutoDisposeFutureProvider<ListingDetailModel> {
+  /// See also [createListing].
+  CreateListingProvider(
+    ListingRequest request,
+  ) : this._internal(
+          (ref) => createListing(
+            ref as CreateListingRef,
+            request,
+          ),
+          from: createListingProvider,
+          name: r'createListingProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$createListingHash,
+          dependencies: CreateListingFamily._dependencies,
+          allTransitiveDependencies:
+              CreateListingFamily._allTransitiveDependencies,
+          request: request,
+        );
+
+  CreateListingProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.request,
+  }) : super.internal();
+
+  final ListingRequest request;
+
+  @override
+  Override overrideWith(
+    FutureOr<ListingDetailModel> Function(CreateListingRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: CreateListingProvider._internal(
+        (ref) => create(ref as CreateListingRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        request: request,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ListingDetailModel> createElement() {
+    return _CreateListingProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CreateListingProvider && other.request == request;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, request.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin CreateListingRef on AutoDisposeFutureProviderRef<ListingDetailModel> {
+  /// The parameter `request` of this provider.
+  ListingRequest get request;
+}
+
+class _CreateListingProviderElement
+    extends AutoDisposeFutureProviderElement<ListingDetailModel>
+    with CreateListingRef {
+  _CreateListingProviderElement(super.provider);
+
+  @override
+  ListingRequest get request => (origin as CreateListingProvider).request;
+}
+
+String _$verifyListingHash() => r'0fda787973cf2b6527d1c843b40137c78dfa491b';
+
+/// See also [verifyListing].
+@ProviderFor(verifyListing)
+const verifyListingProvider = VerifyListingFamily();
+
+/// See also [verifyListing].
+class VerifyListingFamily extends Family<AsyncValue<void>> {
+  /// See also [verifyListing].
+  const VerifyListingFamily();
+
+  /// See also [verifyListing].
+  VerifyListingProvider call(
+    String id,
+  ) {
+    return VerifyListingProvider(
+      id,
+    );
+  }
+
+  @override
+  VerifyListingProvider getProviderOverride(
+    covariant VerifyListingProvider provider,
+  ) {
+    return call(
+      provider.id,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'verifyListingProvider';
+}
+
+/// See also [verifyListing].
+class VerifyListingProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [verifyListing].
+  VerifyListingProvider(
+    String id,
+  ) : this._internal(
+          (ref) => verifyListing(
+            ref as VerifyListingRef,
+            id,
+          ),
+          from: verifyListingProvider,
+          name: r'verifyListingProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$verifyListingHash,
+          dependencies: VerifyListingFamily._dependencies,
+          allTransitiveDependencies:
+              VerifyListingFamily._allTransitiveDependencies,
+          id: id,
+        );
+
+  VerifyListingProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.id,
+  }) : super.internal();
+
+  final String id;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(VerifyListingRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: VerifyListingProvider._internal(
+        (ref) => create(ref as VerifyListingRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        id: id,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _VerifyListingProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is VerifyListingProvider && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin VerifyListingRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `id` of this provider.
+  String get id;
+}
+
+class _VerifyListingProviderElement
+    extends AutoDisposeFutureProviderElement<void> with VerifyListingRef {
+  _VerifyListingProviderElement(super.provider);
+
+  @override
+  String get id => (origin as VerifyListingProvider).id;
+}
+
 String _$mapSearchParamsHash() => r'376b1739628d037161b455939b1e2047c46a2967';
 
 /// See also [MapSearchParams].

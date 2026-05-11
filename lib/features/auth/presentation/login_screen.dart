@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/providers/test_user_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/auth_providers.dart';
 
@@ -14,12 +15,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController();
   bool _loading = false;
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passCtrl.dispose();
+    _nameCtrl.dispose();
     super.dispose();
   }
 
@@ -39,8 +42,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  void _enterTestMode() {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) return;
+    ref.read(testUserNotifierProvider.notifier).login(name);
+    context.go('/map');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final testName = _nameCtrl.text.trim();
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -138,6 +149,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   side: const BorderSide(color: AppColors.border),
                   foregroundColor: AppColors.textPrimary,
+                ),
+              ),
+
+              // Test mode section
+              const SizedBox(height: 32),
+              Row(
+                children: const [
+                  Expanded(child: Divider()),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'or test mode',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _nameCtrl,
+                textCapitalization: TextCapitalization.words,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  labelText: 'Your name',
+                  hintText: 'e.g. Alice',
+                  prefixIcon: const Icon(Icons.science_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: testName.isEmpty ? null : _enterTestMode,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(
+                    color: testName.isEmpty
+                        ? AppColors.border
+                        : const Color(0xFFF57C00),
+                  ),
+                  foregroundColor: const Color(0xFFF57C00),
+                ),
+                child: Text(
+                  testName.isEmpty ? 'Enter Test Mode' : 'Enter as $testName',
                 ),
               ),
               const SizedBox(height: 32),

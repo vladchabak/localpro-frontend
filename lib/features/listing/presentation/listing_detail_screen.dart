@@ -7,6 +7,7 @@ import '../../../core/widgets/app_error_widget.dart';
 import '../../../core/widgets/loading_skeleton.dart';
 import '../../chat/domain/chat_providers.dart';
 import '../data/models/listing_detail_model.dart';
+import '../data/models/listing_request_model.dart';
 import '../domain/listing_providers.dart';
 
 class ListingDetailScreen extends ConsumerStatefulWidget {
@@ -22,12 +23,21 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
   int _currentPhotoIndex = 0;
 
   String _priceLabel(ListingDetailModel listing) {
-    if (listing.price == null) return 'Free';
+    if (listing.priceType == PriceType.negotiable) return 'By Agreement';
+    if (listing.price == null) return 'Price varies';
     final p = listing.price!.toStringAsFixed(0);
     return switch (listing.priceType) {
-      'HOURLY' => '\$$p/hr',
-      'FROM' => 'from \$$p',
-      _ => '\$$p',
+      PriceType.perHour => '€$p/hr',
+      PriceType.perService => '€$p',
+      PriceType.negotiable => 'By Agreement',
+    };
+  }
+
+  String _getPriceTypeLabel(PriceType priceType) {
+    return switch (priceType) {
+      PriceType.perService => 'Per Service',
+      PriceType.perHour => 'Per Hour',
+      PriceType.negotiable => 'By Agreement',
     };
   }
 
@@ -97,6 +107,7 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
             child: _BottomBar(
               priceLabel: priceLabel,
               onContact: () => _startChat(context, listing),
+              listing: listing,
             ),
           ),
         ],
@@ -301,7 +312,7 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  listing.priceType,
+                  _getPriceTypeLabel(listing.priceType),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -538,23 +549,23 @@ class _Badge extends StatelessWidget {
 
 class _ExpandableText extends StatefulWidget {
   final String text;
-  final int maxChars;
 
-  const _ExpandableText({required this.text, this.maxChars = 150});
+  const _ExpandableText({required this.text});
 
   @override
   State<_ExpandableText> createState() => _ExpandableTextState();
 }
 
 class _ExpandableTextState extends State<_ExpandableText> {
+  static const int _maxChars = 150;
   bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
-    final isLong = widget.text.length > widget.maxChars;
+    final isLong = widget.text.length > _maxChars;
     final displayText = _expanded || !isLong
         ? widget.text
-        : '${widget.text.substring(0, widget.maxChars)}...';
+        : '${widget.text.substring(0, _maxChars)}...';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -591,8 +602,9 @@ class _ExpandableTextState extends State<_ExpandableText> {
 class _BottomBar extends StatelessWidget {
   final String priceLabel;
   final VoidCallback onContact;
+  final ListingDetailModel listing;
 
-  const _BottomBar({required this.priceLabel, required this.onContact});
+  const _BottomBar({required this.priceLabel, required this.onContact, required this.listing});
 
   @override
   Widget build(BuildContext context) {
@@ -604,37 +616,39 @@ class _BottomBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              Row(
                 children: [
-                  const Text(
-                    'Price',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Price', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(priceLabel, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                    ],
                   ),
-                  Text(
-                    priceLabel,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                  const Spacer(),
+                  SizedBox(
+                    width: 140,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: onContact,
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.card, foregroundColor: AppColors.ink),
+                      child: const Text('Contact'),
                     ),
                   ),
                 ],
               ),
-              const Spacer(),
+              const SizedBox(height: 10),
               SizedBox(
-                width: 180,
+                width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: onContact,
-                  child: const Text('Contact Provider'),
+                  onPressed: () => context.push('/booking', extra: listing),
+                  child: const Text('Book Now'),
                 ),
               ),
             ],

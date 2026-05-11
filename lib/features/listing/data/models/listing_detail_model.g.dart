@@ -19,7 +19,7 @@ ListingDetailModel _$ListingDetailModelFromJson(Map<String, dynamic> json) =>
       providerRating: (json['providerRating'] as num).toDouble(),
       reviewCount: (json['reviewCount'] as num).toInt(),
       price: (json['price'] as num?)?.toDouble(),
-      priceType: json['priceType'] as String,
+      priceType: $enumDecode(_$PriceTypeEnumMap, json['priceType']),
       address: json['address'] as String?,
       city: json['city'] as String?,
       status: json['status'] as String,
@@ -30,6 +30,14 @@ ListingDetailModel _$ListingDetailModelFromJson(Map<String, dynamic> json) =>
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
+      isVerified: json['isVerified'] as bool,
+      verifiedAt: json['verifiedAt'] == null
+          ? null
+          : DateTime.parse(json['verifiedAt'] as String),
+      customQuestions: (json['customQuestions'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      isVisibleOnMap: json['isVisibleOnMap'] as bool,
     );
 
 Map<String, dynamic> _$ListingDetailModelToJson(ListingDetailModel instance) =>
@@ -45,7 +53,7 @@ Map<String, dynamic> _$ListingDetailModelToJson(ListingDetailModel instance) =>
       'providerRating': instance.providerRating,
       'reviewCount': instance.reviewCount,
       'price': instance.price,
-      'priceType': instance.priceType,
+      'priceType': _$PriceTypeEnumMap[instance.priceType]!,
       'address': instance.address,
       'city': instance.city,
       'status': instance.status,
@@ -53,4 +61,14 @@ Map<String, dynamic> _$ListingDetailModelToJson(ListingDetailModel instance) =>
       'photoUrls': instance.photoUrls,
       'rating': instance.rating,
       'createdAt': instance.createdAt?.toIso8601String(),
+      'isVerified': instance.isVerified,
+      'verifiedAt': instance.verifiedAt?.toIso8601String(),
+      'customQuestions': instance.customQuestions,
+      'isVisibleOnMap': instance.isVisibleOnMap,
     };
+
+const _$PriceTypeEnumMap = {
+  PriceType.perService: 'PER_SERVICE',
+  PriceType.perHour: 'PER_HOUR',
+  PriceType.negotiable: 'NEGOTIABLE',
+};

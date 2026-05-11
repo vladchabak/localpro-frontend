@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../core/models/page_response.dart';
 import 'models/category_model.dart';
 import 'models/listing_detail_model.dart';
+import 'models/listing_request_model.dart';
 import 'models/nearby_listing_model.dart';
 
 class ListingApi {
@@ -35,21 +36,25 @@ class ListingApi {
     return ListingDetailModel.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<ListingDetailModel> createListing(Map<String, dynamic> data) async {
-    final response = await _dio.post('/api/listings', data: data);
+  Future<ListingDetailModel> createListing(ListingRequest request) async {
+    final response = await _dio.post('/api/listings', data: request.toJson());
     return ListingDetailModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<ListingDetailModel> updateListing(
     String id,
-    Map<String, dynamic> data,
+    ListingRequest request,
   ) async {
-    final response = await _dio.put('/api/listings/$id', data: data);
+    final response = await _dio.put('/api/listings/$id', data: request.toJson());
     return ListingDetailModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<void> deleteListing(String id) async {
     await _dio.delete('/api/listings/$id');
+  }
+
+  Future<void> verifyListing(String id) async {
+    await _dio.post('/api/listings/$id/verify');
   }
 
   Future<List<ListingDetailModel>> getMyListings() async {

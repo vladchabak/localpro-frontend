@@ -4,6 +4,7 @@ import '../data/listing_api.dart';
 import '../data/listing_repository.dart';
 import '../data/models/category_model.dart';
 import '../data/models/listing_detail_model.dart';
+import '../data/models/listing_request_model.dart';
 import '../data/models/nearby_listing_model.dart';
 
 part 'listing_providers.g.dart';
@@ -96,3 +97,14 @@ Future<List<NearbyListingModel>> nearbyListings(NearbyListingsRef ref) {
       )
       .then((page) => page.content);
 }
+
+@riverpod
+Future<ListingDetailModel> createListing(
+  CreateListingRef ref,
+  ListingRequest request,
+) =>
+    ref.watch(listingRepositoryProvider).createListing(request);
+
+@riverpod
+Future<void> verifyListing(VerifyListingRef ref, String id) =>
+    ref.watch(listingRepositoryProvider).verifyListing(id);

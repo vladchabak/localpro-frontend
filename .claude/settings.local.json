@@ -11,7 +11,8 @@
       "Bash(flutter run *)",
       "Bash(flutter build *)",
       "Bash(MSYS_NO_PATHCONV=1 flutter build web --dart-define=API_BASE_URL=https://demo-production-2680.up.railway.app --base-href /localpro-frontend/)",
-      "WebFetch(domain:api.anthropic.com)"
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(Get-ChildItem *)"
     ]
   }
 }

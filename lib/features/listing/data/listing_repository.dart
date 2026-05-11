@@ -2,6 +2,7 @@ import '../../../core/models/page_response.dart';
 import 'listing_api.dart';
 import 'models/category_model.dart';
 import 'models/listing_detail_model.dart';
+import 'models/listing_request_model.dart';
 import 'models/nearby_listing_model.dart';
 
 class ListingRepository {
@@ -24,14 +25,16 @@ class ListingRepository {
 
   Future<ListingDetailModel> getById(String id) => _api.getById(id);
 
-  Future<ListingDetailModel> createListing(Map<String, dynamic> data) =>
-      _api.createListing(data);
+  Future<ListingDetailModel> createListing(ListingRequest request) =>
+      _api.createListing(request);
 
   Future<ListingDetailModel> updateListing(
-          String id, Map<String, dynamic> data) =>
-      _api.updateListing(id, data);
+          String id, ListingRequest request) =>
+      _api.updateListing(id, request);
 
   Future<void> deleteListing(String id) => _api.deleteListing(id);
+
+  Future<void> verifyListing(String id) => _api.verifyListing(id);
 
   Future<List<ListingDetailModel>> getMyListings() => _api.getMyListings();
 

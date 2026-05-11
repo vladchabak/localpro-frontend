@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/theme/app_colors.dart';
@@ -169,7 +170,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
 
-          // My-location FAB above collapsed sheet
+          // Action FABs above collapsed sheet
+          Positioned(
+            right: 16,
+            bottom: MediaQuery.of(context).size.height * 0.15 + 64,
+            child: FloatingActionButton.small(
+              backgroundColor: AppColors.primary,
+              elevation: 4,
+              onPressed: () => context.push('/provider/listings/create'),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+          ),
           Positioned(
             right: 16,
             bottom: MediaQuery.of(context).size.height * 0.15,

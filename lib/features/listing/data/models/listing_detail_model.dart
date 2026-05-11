@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'listing_request_model.dart';
+
 part 'listing_detail_model.g.dart';
 
 @JsonSerializable()
@@ -14,7 +16,7 @@ class ListingDetailModel {
   final double providerRating;
   final int reviewCount;
   final double? price;
-  final String priceType;
+  final PriceType priceType;
   final String? address;
   final String? city;
   final String status;
@@ -22,6 +24,10 @@ class ListingDetailModel {
   final List<String> photoUrls;
   final double? rating;
   final DateTime? createdAt;
+  final bool isVerified;
+  final DateTime? verifiedAt;
+  final List<String> customQuestions;
+  final bool isVisibleOnMap;
 
   const ListingDetailModel({
     required this.id,
@@ -43,6 +49,10 @@ class ListingDetailModel {
     required this.photoUrls,
     this.rating,
     this.createdAt,
+    required this.isVerified,
+    this.verifiedAt,
+    required this.customQuestions,
+    required this.isVisibleOnMap,
   });
 
   factory ListingDetailModel.fromJson(Map<String, dynamic> json) =>

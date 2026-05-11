@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/test_user_provider.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/domain/auth_providers.dart';
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/booking/presentation/booking_screen.dart';
+import '../../features/booking/presentation/booking_success_screen.dart';
+import '../../features/booking/presentation/my_bookings_screen.dart';
 import '../../features/chat/presentation/chat_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
+import '../../features/listing/data/models/listing_detail_model.dart';
 import '../../features/listing/presentation/create_listing_screen.dart';
 import '../../features/listing/presentation/listing_detail_screen.dart';
+import '../../features/listing/presentation/verification_prompt_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/provider_dashboard/presentation/provider_dashboard_screen.dart';
@@ -62,12 +68,34 @@ final appRouter = GoRouter(
       builder: (context, state) => const CreateListingScreen(),
     ),
     GoRoute(
+      path: '/listings/verify/:id',
+      builder: (context, state) => VerificationPromptScreen(
+        listingId: state.pathParameters['id']!,
+      ),
+    ),
+    GoRoute(
       path: '/provider/dashboard',
       builder: (context, state) => const ProviderDashboardScreen(),
     ),
     GoRoute(
       path: '/profile/edit',
       builder: (context, state) => const EditProfileScreen(),
+    ),
+    GoRoute(
+      path: '/booking',
+      builder: (context, state) => BookingScreen(
+        listing: state.extra as ListingDetailModel,
+      ),
+    ),
+    GoRoute(
+      path: '/booking/success/:id',
+      builder: (context, state) => BookingSuccessScreen(
+        bookingId: state.pathParameters['id']!,
+      ),
+    ),
+    GoRoute(
+      path: '/bookings',
+      builder: (context, state) => const MyBookingsScreen(),
     ),
   ],
   errorBuilder: (context, state) => Scaffold(
@@ -82,6 +110,15 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Test user bypasses Firebase — go straight to the app.
+    final testUser = ref.watch(testUserNotifierProvider);
+    if (testUser != null) {
+      Future.microtask(() {
+        if (context.mounted) context.go('/map');
+      });
+      return const Scaffold(backgroundColor: Colors.white);
+    }
+
     final authState = ref.watch(authStateProvider);
 
     return authState.when(
