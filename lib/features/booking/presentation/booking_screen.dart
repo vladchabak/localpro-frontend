@@ -1,8 +1,10 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:math';
 import '../../../core/theme/app_colors.dart';
 import '../../listing/data/models/listing_detail_model.dart';
 import '../data/models/booking_model.dart';
@@ -145,6 +147,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         calendarType: calendarType,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
+
+      // Debug: Log the request JSON
+      print('🔵 Booking request JSON: ${jsonEncode(request.toJson())}');
+      print('📅 Scheduled at: ${request.scheduledAt.toIso8601String()}');
+      print('💳 Payment type: ${request.paymentType}');
+      print('📍 Listing ID: ${request.listingId}');
 
       final response = await ref.read(createBookingProvider(request).future);
 
