@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_error_widget.dart';
 import '../../listing/data/models/listing_detail_model.dart';
+import '../../listing/data/models/listing_request_model.dart';
 import '../../listing/domain/listing_providers.dart';
 
 class ProviderDashboardScreen extends ConsumerWidget {
@@ -90,8 +91,8 @@ class _ListingTile extends ConsumerWidget {
     if (listing.price == null) return 'Free';
     final p = listing.price!.toStringAsFixed(0);
     return switch (listing.priceType) {
-      'HOURLY' => '\$$p/hr',
-      'FROM' => 'from \$$p',
+      PriceType.perHour => '\$$p/hr',
+      PriceType.negotiable => 'from \$$p',
       _ => '\$$p',
     };
   }

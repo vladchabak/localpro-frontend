@@ -115,6 +115,15 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   Future<void> _confirmBooking() async {
+    // Check listing ID
+    if (widget.listing.id.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: Invalid listing. Please go back and try again.')),
+      );
+      return;
+    }
+
+    // Check card details if credit card is selected
     if (_selectedPayment == PaymentType.creditCard &&
         (_cardNumberController.text.isEmpty ||
             _expiryController.text.isEmpty ||
@@ -125,14 +134,19 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       return;
     }
 
-    final scheduledAt = _inAppSelectedDateTime ??
-        DateTime(
-          _selectedDate.year,
-          _selectedDate.month,
-          _selectedDate.day,
-          _selectedTime.hour,
-          _selectedTime.minute,
-        );
+    // Build scheduled date/time
+    DateTime? scheduledAt;
+    if (_inAppSelectedDateTime != null) {
+      scheduledAt = _inAppSelectedDateTime;
+    } else {
+      scheduledAt = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _selectedTime.hour,
+        _selectedTime.minute,
+      );
+    }
 
     final calendarType = _selectedCalendarType ?? CalendarType.googleCalendar;
 
@@ -140,29 +154,43 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     try {
       await Future.delayed(const Duration(milliseconds: 1500));
 
+      // Validate and build request with safe type conversion
+      final String validListingId = widget.listing.id.toString();
+      if (validListingId.isEmpty) {
+        throw Exception('Invalid listing ID');
+      }
+
+      if (scheduledAt == null) {
+        throw Exception('Scheduled date/time is not set');
+      }
+
       final request = BookingRequest(
-        listingId: widget.listing.id,
+        listingId: validListingId,
         scheduledAt: scheduledAt,
         paymentType: _selectedPayment,
         calendarType: calendarType,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
 
-      // Debug: Log the request JSON
-      print('🔵 Booking request JSON: ${jsonEncode(request.toJson())}');
-      print('📅 Scheduled at: ${request.scheduledAt.toIso8601String()}');
-      print('💳 Payment type: ${request.paymentType}');
-      print('📍 Listing ID: ${request.listingId}');
+      // Validate request before sending
+      final requestJson = request.toJson();
+      debugPrint('🔵 Booking request JSON: ${jsonEncode(requestJson)}');
+      debugPrint('📅 Scheduled at: ${request.scheduledAt.toIso8601String()}');
+      debugPrint('💳 Payment type: ${request.paymentType} (${requestJson['paymentType']})');
+      debugPrint('📍 Calendar type: ${request.calendarType} (${requestJson['calendarType']})');
+      debugPrint('📍 Listing ID: ${request.listingId}');
 
       final response = await ref.read(createBookingProvider(request).future);
 
       if (mounted) {
         context.go('/booking/success/${response.id}');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('❌ Booking error: $e');
+      debugPrint('Stack trace: $stackTrace');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Booking failed: $e')),
+          SnackBar(content: Text('Booking failed: ${e.toString()}')),
         );
       }
     } finally {
