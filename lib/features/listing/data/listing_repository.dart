@@ -1,4 +1,5 @@
 import '../../../core/models/page_response.dart';
+import '../../catalog/data/models/search_filter.dart';
 import 'listing_api.dart';
 import 'models/category_model.dart';
 import 'models/listing_detail_model.dart';
@@ -39,4 +40,28 @@ class ListingRepository {
   Future<List<ListingDetailModel>> getMyListings() => _api.getMyListings();
 
   Future<List<CategoryModel>> getCategories() => _api.getCategories();
+
+  Future<PageResponse<ListingDetailModel>> searchListings(
+    SearchFilter filter,
+  ) =>
+      _api.searchListings(filter);
+
+  Future<PageResponse<ListingDetailModel>> getPopularListings({
+    int page = 0,
+    int size = 20,
+  }) =>
+      _api.getPopularListings(page: page, size: size);
+
+  Future<PageResponse<ListingDetailModel>> getRecentListings({
+    int page = 0,
+    int size = 20,
+  }) =>
+      _api.getRecentListings(page: page, size: size);
+
+  Future<PageResponse<ListingDetailModel>> getListingsByCategory(
+    String categoryId, {
+    int page = 0,
+    int size = 20,
+  }) =>
+      _api.getListingsByCategory(categoryId, page: page, size: size);
 }

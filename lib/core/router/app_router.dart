@@ -8,6 +8,7 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/booking/presentation/booking_screen.dart';
 import '../../features/booking/presentation/booking_success_screen.dart';
 import '../../features/booking/presentation/my_bookings_screen.dart';
+import '../../features/catalog/presentation/catalog_screen.dart';
 import '../../features/chat/presentation/chat_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
 import '../../features/listing/data/models/listing_detail_model.dart';
@@ -264,14 +265,6 @@ class _NavBadge extends StatelessWidget {
 }
 
 // Placeholder screens (replaced in later phases)
-
-class CatalogScreen extends StatelessWidget {
-  const CatalogScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Scaffold(
-        body: Center(child: Text('Catalog — coming soon')),
-      );
-}
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
