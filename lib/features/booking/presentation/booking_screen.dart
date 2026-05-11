@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -87,8 +86,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final url = calendarType == 'calendly'
         ? 'https://calendly.com/mock-booking'
         : 'https://calendar.google.com';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Couldn't open the calendar app")),
+      );
     }
   }
 
@@ -152,33 +156,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     setState(() => _isProcessingPayment = true);
     try {
-      await Future.delayed(const Duration(milliseconds: 1500));
-
-      // Validate and build request with safe type conversion
-      final String validListingId = widget.listing.id.toString();
-      if (validListingId.isEmpty) {
-        throw Exception('Invalid listing ID');
-      }
-
-      if (scheduledAt == null) {
-        throw Exception('Scheduled date/time is not set');
-      }
-
       final request = BookingRequest(
-        listingId: validListingId,
-        scheduledAt: scheduledAt,
+        listingId: widget.listing.id,
+        scheduledAt: scheduledAt!,
         paymentType: _selectedPayment,
         calendarType: calendarType,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
-
-      // Validate request before sending
-      final requestJson = request.toJson();
-      debugPrint('🔵 Booking request JSON: ${jsonEncode(requestJson)}');
-      debugPrint('📅 Scheduled at: ${request.scheduledAt.toIso8601String()}');
-      debugPrint('💳 Payment type: ${request.paymentType} (${requestJson['paymentType']})');
-      debugPrint('📍 Calendar type: ${request.calendarType} (${requestJson['calendarType']})');
-      debugPrint('📍 Listing ID: ${request.listingId}');
 
       final response = await ref.read(createBookingProvider(request).future);
 
@@ -263,7 +247,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SizedBox(height: 24),
 
             // Date & time picker
-            Text('Schedule', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8).copyWith(fontSize: 11)),
+            Text('Schedule', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -287,7 +271,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SizedBox(height: 24),
 
             // Calendar integration
-            Text('Add to calendar', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8).copyWith(fontSize: 11)),
+            Text('Add to calendar', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8)),
             const SizedBox(height: 8),
             Column(
               children: [
@@ -351,7 +335,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SizedBox(height: 24),
 
             // Payment method
-            Text('Payment method', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8).copyWith(fontSize: 11)),
+            Text('Payment method', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8)),
             const SizedBox(height: 8),
             _PaymentMethodSelector(
               selectedPayment: _selectedPayment,
@@ -369,7 +353,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SizedBox(height: 24),
 
             // Notes
-            Text('Notes (optional)', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8).copyWith(fontSize: 11)),
+            Text('Notes (optional)', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8)),
             const SizedBox(height: 8),
             TextField(
               controller: _notesController,

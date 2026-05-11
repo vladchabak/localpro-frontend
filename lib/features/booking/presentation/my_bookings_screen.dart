@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_error_widget.dart';
 import '../../../core/widgets/loading_skeleton.dart';
@@ -52,18 +53,17 @@ class MyBookingsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 itemCount: bookings.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (_, i) => _BookingCard(booking: bookings[i], ref: ref),
+                itemBuilder: (_, i) => _BookingCard(booking: bookings[i]),
               ),
       ),
     );
   }
 }
 
-class _BookingCard extends StatelessWidget {
+class _BookingCard extends ConsumerWidget {
   final BookingResponse booking;
-  final WidgetRef ref;
 
-  const _BookingCard({required this.booking, required this.ref});
+  const _BookingCard({required this.booking});
 
   Color _statusColor(BookingStatus status) {
     switch (status) {
@@ -78,12 +78,8 @@ class _BookingCard extends StatelessWidget {
     }
   }
 
-  String _statusLabel(BookingStatus status) {
-    return status.toString().split('.').last.toUpperCase();
-  }
-
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context, WidgetRef ref) => GestureDetector(
     onTap: () => context.push('/bookings/${booking.id}'),
     child: Container(
       decoration: BoxDecoration(
@@ -137,7 +133,7 @@ class _BookingCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        _statusLabel(booking.status),
+                        booking.status.label,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -163,7 +159,7 @@ class _BookingCard extends StatelessWidget {
                   Text('Date', style: const TextStyle(fontSize: 11, color: AppColors.ink3, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   Text(
-                    booking.scheduledAt.toString().split(' ')[0],
+                    DateFormat('d MMM yyyy').format(booking.scheduledAt),
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink),
                   ),
                 ],
@@ -186,7 +182,7 @@ class _BookingCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => _showCancelDialog(context),
+                onPressed: () => _showCancelDialog(context, ref),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   side: const BorderSide(color: Colors.red),
@@ -202,7 +198,7 @@ class _BookingCard extends StatelessWidget {
     ),
   );
 
-  void _showCancelDialog(BuildContext context) {
+  void _showCancelDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -216,7 +212,7 @@ class _BookingCard extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _cancelBooking(context);
+              _cancelBooking(context, ref);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Cancel Booking'),
@@ -226,7 +222,7 @@ class _BookingCard extends StatelessWidget {
     );
   }
 
-  Future<void> _cancelBooking(BuildContext context) async {
+  Future<void> _cancelBooking(BuildContext context, WidgetRef ref) async {
     try {
       await ref.read(cancelBookingProvider(booking.id).future);
       if (context.mounted) {

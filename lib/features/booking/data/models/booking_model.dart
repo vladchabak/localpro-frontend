@@ -6,7 +6,26 @@ enum PaymentType { @JsonValue('CREDIT_CARD') creditCard, @JsonValue('CASH') cash
 
 enum CalendarType { @JsonValue('CALENDLY') calendly, @JsonValue('GOOGLE_CALENDAR') googleCalendar, @JsonValue('IN_APP') inApp }
 
-enum BookingStatus { @JsonValue('PENDING') pending, @JsonValue('CONFIRMED') confirmed, @JsonValue('CANCELLED') cancelled, @JsonValue('COMPLETED') completed }
+enum BookingStatus {
+  @JsonValue('PENDING') pending,
+  @JsonValue('CONFIRMED') confirmed,
+  @JsonValue('CANCELLED') cancelled,
+  @JsonValue('COMPLETED') completed;
+
+  String get label => switch (this) {
+    BookingStatus.pending => 'PENDING',
+    BookingStatus.confirmed => 'CONFIRMED',
+    BookingStatus.cancelled => 'CANCELLED',
+    BookingStatus.completed => 'COMPLETED',
+  };
+}
+
+enum PaymentStatus {
+  @JsonValue('PENDING') pending,
+  @JsonValue('PAID') paid,
+  @JsonValue('FAILED') failed,
+  @JsonValue('REFUNDED') refunded;
+}
 
 @JsonSerializable()
 class BookingRequest {
@@ -32,7 +51,7 @@ class BookingRequest {
 class BookingResponse {
   final String id;
   final BookingStatus status;
-  final String paymentStatus;
+  final PaymentStatus? paymentStatus;
   final DateTime scheduledAt;
   final String? calendlyUrl;
   final String? googleCalendarUrl;
@@ -46,7 +65,7 @@ class BookingResponse {
   const BookingResponse({
     required this.id,
     required this.status,
-    required this.paymentStatus,
+    this.paymentStatus,
     required this.scheduledAt,
     this.calendlyUrl,
     this.googleCalendarUrl,

@@ -162,6 +162,8 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
         _goToPage(_currentStep + 1);
       case 4:
         _submitListing();
+      default:
+        break;
     }
   }
 
@@ -343,7 +345,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   onPressed: _isSubmitting ? null : _onNextStep,
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 52),
-                    backgroundColor: const Color(0xFF1B5E63),
+                    backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -574,9 +576,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 border: Border.all(color: AppColors.border),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(11),
-                child: FlutterMap(
+              child: FlutterMap(
                   options: MapOptions(
                     initialCenter: LatLng(
                       _selectedLat ?? 35.1856,
@@ -609,7 +609,6 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                       ),
                   ],
                 ),
-              ),
             ),
           ),
           if (_selectedLat != null) ...[
@@ -684,7 +683,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   onDeleted: () =>
                       setState(() => _customQuestions.removeAt(e.key)),
                   backgroundColor:
-                      const Color(0xFF1B5E63).withValues(alpha: 0.1),
+                      AppColors.primary.withValues(alpha: 0.1),
                   side: const BorderSide(color: Color(0xFF1B5E63)),
                   labelStyle: const TextStyle(color: Color(0xFF1B5E63)),
                 );
@@ -739,15 +738,15 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                       style: const TextStyle(fontSize: 12),
                     ),
                     backgroundColor:
-                        const Color(0xFF1B5E63).withValues(alpha: 0.08),
+                        AppColors.primary.withValues(alpha: 0.08),
                     side: BorderSide(
-                      color: const Color(0xFF1B5E63),
+                      color: AppColors.primary,
                       width: alreadyAdded ? 0 : 1,
                     ),
                     labelStyle: TextStyle(
                       color: alreadyAdded
                           ? AppColors.textSecondary
-                          : const Color(0xFF1B5E63),
+                          : AppColors.primary,
                       fontWeight:
                           alreadyAdded ? FontWeight.normal : FontWeight.w500,
                     ),

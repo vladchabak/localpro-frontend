@@ -40,7 +40,7 @@ BookingResponse _$BookingResponseFromJson(Map<String, dynamic> json) =>
     BookingResponse(
       id: json['id'] as String,
       status: $enumDecode(_$BookingStatusEnumMap, json['status']),
-      paymentStatus: json['paymentStatus'] as String,
+      paymentStatus: $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']),
       scheduledAt: DateTime.parse(json['scheduledAt'] as String),
       calendlyUrl: json['calendlyUrl'] as String?,
       googleCalendarUrl: json['googleCalendarUrl'] as String?,
@@ -56,7 +56,7 @@ Map<String, dynamic> _$BookingResponseToJson(BookingResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'status': _$BookingStatusEnumMap[instance.status]!,
-      'paymentStatus': instance.paymentStatus,
+      'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus],
       'scheduledAt': instance.scheduledAt.toIso8601String(),
       'calendlyUrl': instance.calendlyUrl,
       'googleCalendarUrl': instance.googleCalendarUrl,
@@ -73,4 +73,11 @@ const _$BookingStatusEnumMap = {
   BookingStatus.confirmed: 'CONFIRMED',
   BookingStatus.cancelled: 'CANCELLED',
   BookingStatus.completed: 'COMPLETED',
+};
+
+const _$PaymentStatusEnumMap = {
+  PaymentStatus.pending: 'PENDING',
+  PaymentStatus.paid: 'PAID',
+  PaymentStatus.failed: 'FAILED',
+  PaymentStatus.refunded: 'REFUNDED',
 };

@@ -19,7 +19,6 @@ dependencies:
 
   # HTTP
   dio: ^5.4.3
-  retrofit: ^4.4.0
   json_annotation: ^4.9.0
 
   # Maps

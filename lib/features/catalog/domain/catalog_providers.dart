@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../listing/data/listing_repository.dart';
 import '../../listing/data/models/listing_detail_model.dart';
 import '../../listing/domain/listing_providers.dart';
 import '../data/models/search_filter.dart';
@@ -97,19 +96,19 @@ Future<List<ListingDetailModel>> catalogSearchResults(CatalogSearchResultsRef re
   );
 
   final response = await repo.searchListings(filter);
-  return response.content ?? [];
+  return response.content;
 }
 
 @riverpod
 Future<List<ListingDetailModel>> popularListings(PopularListingsRef ref) async {
   final repo = ref.watch(listingRepositoryProvider);
   final response = await repo.getPopularListings(page: 0, size: 5);
-  return response.content ?? [];
+  return response.content;
 }
 
 @riverpod
 Future<List<ListingDetailModel>> recentListings(RecentListingsRef ref) async {
   final repo = ref.watch(listingRepositoryProvider);
   final response = await repo.getRecentListings(page: 0, size: 10);
-  return response.content ?? [];
+  return response.content;
 }

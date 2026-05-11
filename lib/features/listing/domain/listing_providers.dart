@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../auth/domain/auth_providers.dart';
+import '../../../core/api/core_providers.dart';
 import '../data/listing_api.dart';
 import '../data/listing_repository.dart';
 import '../data/models/category_model.dart';
@@ -103,8 +103,8 @@ Future<ListingDetailModel> createListing(
   CreateListingRef ref,
   ListingRequest request,
 ) =>
-    ref.watch(listingRepositoryProvider).createListing(request);
+    ref.read(listingRepositoryProvider).createListing(request);
 
 @riverpod
 Future<void> verifyListing(VerifyListingRef ref, String id) =>
-    ref.watch(listingRepositoryProvider).verifyListing(id);
+    ref.read(listingRepositoryProvider).verifyListing(id);

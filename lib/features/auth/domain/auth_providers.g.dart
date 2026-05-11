@@ -6,20 +6,6 @@ part of 'auth_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dioHash() => r'b53975663f97f568095eabfdd22d36a2d80d158d';
-
-/// See also [dio].
-@ProviderFor(dio)
-final dioProvider = AutoDisposeProvider<Dio>.internal(
-  dio,
-  name: r'dioProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$dioHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef DioRef = AutoDisposeProviderRef<Dio>;
 String _$authApiHash() => r'0b3f1eea67e216ab895819cb988fda70db116e81';
 
 /// See also [authApi].

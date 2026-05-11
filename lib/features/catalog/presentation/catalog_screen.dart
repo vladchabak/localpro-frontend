@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_error_widget.dart';
-import '../../listing/data/models/category_model.dart';
 import '../../listing/data/models/listing_detail_model.dart';
 import '../../listing/domain/listing_providers.dart';
 import '../domain/catalog_providers.dart';
@@ -21,18 +19,6 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   final _cityController = TextEditingController();
   bool _showFilters = false;
   bool _gridView = true;
-
-  static const List<Map<String, String>> _categories = [
-    {'id': '', 'name': 'All'},
-    {'id': 'cleaning', 'name': 'Cleaning'},
-    {'id': 'plumbing', 'name': 'Plumbing'},
-    {'id': 'tutoring', 'name': 'Tutoring'},
-    {'id': 'beauty', 'name': 'Beauty'},
-    {'id': 'repairs', 'name': 'Repairs'},
-    {'id': 'moving', 'name': 'Moving'},
-    {'id': 'photography', 'name': 'Photography'},
-    {'id': 'it', 'name': 'IT'},
-  ];
 
   @override
   void dispose() {
@@ -110,7 +96,22 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                   if (results.isEmpty) {
                     return _buildEmptyState();
                   }
-                  return _buildResultsGrid(results);
+                  return Column(
+                    children: [
+                      Expanded(child: _buildResultsGrid(results)),
+                      if (results.length >= 10)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: TextButton(
+                            onPressed: () {
+                              final current = ref.read(catalogSearchProvider).page;
+                              ref.read(catalogSearchProvider.notifier).setPage(current + 1);
+                            },
+                            child: const Text('Load more'),
+                          ),
+                        ),
+                    ],
+                  );
                 },
               ),
             ),
@@ -121,7 +122,6 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   }
 
   Widget _buildSearchBar() {
-    final searchState = ref.watch(catalogSearchProvider);
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -180,36 +180,44 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   }
 
   Widget _buildFilterChips(CatalogSearchState searchState) {
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final categories = categoriesAsync.valueOrNull ?? [];
+
+    Widget chip({required String id, required String name}) {
+      final isSelected = searchState.categoryId == id ||
+          (searchState.categoryId == null && id.isEmpty);
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: FilterChip(
+          label: Text(name),
+          selected: isSelected,
+          onSelected: (_) {
+            ref
+                .read(catalogSearchProvider.notifier)
+                .setCategory(id.isEmpty ? null : id);
+          },
+          backgroundColor: Colors.white,
+          selectedColor: AppColors.primary,
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : AppColors.ink2,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+          side: BorderSide(
+            color: isSelected ? AppColors.primary : AppColors.line,
+          ),
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
-        children: _categories.map((cat) {
-          final isSelected = searchState.categoryId == cat['id'] ||
-              (searchState.categoryId == null && cat['id'] == '');
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: FilterChip(
-              label: Text(cat['name']!),
-              selected: isSelected,
-              onSelected: (selected) {
-                ref
-                    .read(catalogSearchProvider.notifier)
-                    .setCategory(cat['id']!.isEmpty ? null : cat['id']);
-              },
-              backgroundColor: Colors.white,
-              selectedColor: AppColors.primary,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : AppColors.ink2,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-              side: BorderSide(
-                color: isSelected ? AppColors.primary : AppColors.line,
-              ),
-            ),
-          );
-        }).toList(),
+        children: [
+          chip(id: '', name: 'All'),
+          ...categories.map((cat) => chip(id: cat.id, name: cat.name)),
+        ],
       ),
     );
   }

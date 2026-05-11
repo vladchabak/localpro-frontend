@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../auth/domain/auth_providers.dart';
+import '../../../core/api/core_providers.dart';
 import '../data/booking_api.dart';
 import '../data/booking_repository.dart';
 import '../data/models/booking_model.dart';
@@ -23,8 +23,8 @@ Future<BookingResponse> bookingDetail(BookingDetailRef ref, String id) =>
 
 @riverpod
 Future<BookingResponse> createBooking(CreateBookingRef ref, BookingRequest request) =>
-    ref.watch(bookingRepositoryProvider).createBooking(request);
+    ref.read(bookingRepositoryProvider).createBooking(request);
 
 @riverpod
 Future<BookingResponse> cancelBooking(CancelBookingRef ref, String id) =>
-    ref.watch(bookingRepositoryProvider).cancelBooking(id);
+    ref.read(bookingRepositoryProvider).cancelBooking(id);

@@ -316,7 +316,10 @@ class ProfileScreen extends ConsumerWidget {
                 'Sign out',
                 style: TextStyle(color: AppColors.error),
               ),
-              onTap: () => context.go('/auth/login'),
+              onTap: () async {
+                await ref.read(authRepositoryProvider).signOut();
+                if (context.mounted) context.go('/auth/login');
+              },
             ),
           ],
         ),

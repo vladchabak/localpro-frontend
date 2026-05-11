@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../auth/domain/auth_providers.dart';
+import '../../../core/api/core_providers.dart';
 import '../data/chat_api.dart';
 import '../data/chat_repository.dart';
 import '../data/models/chat_model.dart';
@@ -30,10 +30,8 @@ Future<List<ChatSummaryModel>> chats(ChatsRef ref) =>
 Future<List<MessageModel>> chatMessages(
   ChatMessagesRef ref,
   String chatId,
-) async {
-  await ref.read(chatRepositoryProvider).markRead(chatId);
-  return ref.read(chatRepositoryProvider).getMessages(chatId);
-}
+) =>
+    ref.read(chatRepositoryProvider).getMessages(chatId);
 
 @riverpod
 class ChatMessageList extends _$ChatMessageList {

@@ -44,6 +44,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ref
           .read(chatMessageListProvider(widget.chatId).notifier)
           .setInitialMessages(messages);
+      ref.read(chatRepositoryProvider).markRead(widget.chatId);
 
       final stomp = ref.read(stompServiceProvider);
       if (!stomp.isConnected) {

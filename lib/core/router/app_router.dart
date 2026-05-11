@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,11 +17,22 @@ import '../../features/listing/presentation/create_listing_screen.dart';
 import '../../features/listing/presentation/listing_detail_screen.dart';
 import '../../features/listing/presentation/verification_prompt_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
+import '../../features/chat/domain/chat_providers.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/provider_dashboard/presentation/provider_dashboard_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
+  redirect: (context, state) {
+    final path = state.uri.path;
+    final isPublic = path == '/splash' || path == '/auth/login';
+    if (isPublic) return null;
+    final testUser = ProviderScope.containerOf(context).read(testUserNotifierProvider);
+    if (testUser != null) return null;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return '/auth/login';
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/splash',
@@ -122,43 +134,27 @@ class SplashScreen extends ConsumerWidget {
 
     final authState = ref.watch(authStateProvider);
 
-    return authState.when(
-      loading: () => const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'LocalPro',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
-              SizedBox(height: 24),
-              CircularProgressIndicator(color: AppColors.primary),
-            ],
-          ),
-        ),
-      ),
-      error: (e, _) {
-        Future.microtask(() {
-          if (context.mounted) context.go('/auth/login');
-        });
-        return const Scaffold(backgroundColor: Colors.white);
-      },
-      data: (user) {
-        Future.microtask(() {
-          if (context.mounted) {
-            context.go(user != null ? '/map' : '/auth/login');
-          }
-        });
-        return const Scaffold(
-          backgroundColor: Colors.white,
-          body: Center(
-            child: Text(
+    authState.whenData((user) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          context.go(user != null ? '/map' : '/auth/login');
+        }
+      });
+    });
+
+    if (authState.hasError) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) context.go('/auth/login');
+      });
+    }
+
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
               'LocalPro',
               style: TextStyle(
                 fontSize: 36,
@@ -166,24 +162,26 @@ class SplashScreen extends ConsumerWidget {
                 color: AppColors.primary,
               ),
             ),
-          ),
-        );
-      },
+            SizedBox(height: 24),
+            CircularProgressIndicator(color: AppColors.primary),
+          ],
+        ),
+      ),
     );
   }
 }
 
 // Home shell with bottom nav
 
-class HomeShell extends StatefulWidget {
+class HomeShell extends ConsumerStatefulWidget {
   final Widget child;
   const HomeShell({super.key, required this.child});
 
   @override
-  State<HomeShell> createState() => _HomeShellState();
+  ConsumerState<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends ConsumerState<HomeShell> {
   static const _tabs = ['/map', '/catalog', '/chats', '/profile'];
 
   int _locationToIndex(String path) {
@@ -196,6 +194,10 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final path = GoRouterState.of(context).uri.path;
+    final chatsAsync = ref.watch(chatsProvider);
+    final unreadCount = chatsAsync.valueOrNull
+            ?.fold(0, (sum, c) => sum + c.unreadCount) ??
+        0;
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: Container(
@@ -218,8 +220,8 @@ class _HomeShellState extends State<HomeShell> {
               label: 'Search',
             ),
             BottomNavigationBarItem(
-              icon: _NavBadge(child: const Icon(Icons.chat_bubble_outline), count: 2),
-              activeIcon: _NavBadge(child: const Icon(Icons.chat_bubble), count: 2),
+              icon: _NavBadge(child: const Icon(Icons.chat_bubble_outline), count: unreadCount),
+              activeIcon: _NavBadge(child: const Icon(Icons.chat_bubble), count: unreadCount),
               label: 'Messages',
             ),
             const BottomNavigationBarItem(

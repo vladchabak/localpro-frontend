@@ -6,10 +6,10 @@ import 'models/user_model.dart';
 
 class AuthRepository {
   final AuthApi _api;
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _firebaseAuth;
+  final GoogleSignIn _googleSignIn;
 
-  AuthRepository(this._api);
+  AuthRepository(this._api, this._firebaseAuth, this._googleSignIn);
 
   Future<UserModel> signInWithGoogle() async {
     if (kIsWeb) {

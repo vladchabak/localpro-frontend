@@ -104,14 +104,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ElevatedButton(
                 onPressed: _loading
                     ? null
-                    : () => _run(
-                          () => ref
-                              .read(authRepositoryProvider)
-                              .signInWithEmail(
-                                _emailCtrl.text.trim(),
-                                _passCtrl.text,
-                              ),
-                        ),
+                    : () {
+                        if (_emailCtrl.text.trim().isEmpty || _passCtrl.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please enter your email and password')),
+                          );
+                          return;
+                        }
+                        _run(() => ref
+                            .read(authRepositoryProvider)
+                            .signInWithEmail(
+                              _emailCtrl.text.trim(),
+                              _passCtrl.text,
+                            ));
+                      },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 52),
                   backgroundColor: AppColors.primary,

@@ -1,7 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../core/api/api_client.dart';
+import '../../../core/api/core_providers.dart';
 import '../../../core/providers/test_user_provider.dart';
 import '../data/auth_api.dart';
 import '../data/auth_repository.dart';
@@ -10,14 +10,11 @@ import '../data/models/user_model.dart';
 part 'auth_providers.g.dart';
 
 @riverpod
-Dio dio(DioRef ref) => ApiClient.createDio();
-
-@riverpod
 AuthApi authApi(AuthApiRef ref) => AuthApi(ref.watch(dioProvider));
 
 @riverpod
 AuthRepository authRepository(AuthRepositoryRef ref) =>
-    AuthRepository(ref.watch(authApiProvider));
+    AuthRepository(ref.watch(authApiProvider), FirebaseAuth.instance, GoogleSignIn());
 
 @riverpod
 Future<UserModel> currentUser(CurrentUserRef ref) async {

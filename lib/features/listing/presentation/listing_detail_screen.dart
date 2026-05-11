@@ -563,9 +563,12 @@ class _ExpandableTextState extends State<_ExpandableText> {
   @override
   Widget build(BuildContext context) {
     final isLong = widget.text.length > _maxChars;
-    final displayText = _expanded || !isLong
-        ? widget.text
-        : '${widget.text.substring(0, _maxChars)}...';
+    String truncateAtWord() {
+      final boundary = widget.text.lastIndexOf(' ', _maxChars);
+      final cutAt = boundary > 0 ? boundary : _maxChars;
+      return '${widget.text.substring(0, cutAt)}...';
+    }
+    final displayText = _expanded || !isLong ? widget.text : truncateAtWord();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
