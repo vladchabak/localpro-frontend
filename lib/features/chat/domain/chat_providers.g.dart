@@ -64,7 +64,7 @@ final chatsProvider =
 );
 
 typedef ChatsRef = AutoDisposeFutureProviderRef<List<ChatSummaryModel>>;
-String _$chatMessagesHash() => r'613133d3597bd1ff55a594f8c8fa791b1dc9678e';
+String _$chatMessagesHash() => r'3a56c23e3d2d61dfb260770d0b7e0f1e51c15cd7';
 
 /// Copied from Dart SDK
 class _SystemHash {

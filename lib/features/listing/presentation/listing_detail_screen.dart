@@ -2,12 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_error_widget.dart';
 import '../../../core/widgets/loading_skeleton.dart';
 import '../../chat/domain/chat_providers.dart';
 import '../data/models/listing_detail_model.dart';
 import '../data/models/listing_request_model.dart';
+import '../data/models/review_model.dart';
 import '../domain/listing_providers.dart';
 
 class ListingDetailScreen extends ConsumerStatefulWidget {
@@ -94,11 +96,15 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              _buildSliverAppBar(listing),
-              SliverToBoxAdapter(child: _buildContent(listing, priceLabel)),
-            ],
+          RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () async => ref.invalidate(listingDetailProvider(widget.id)),
+            child: CustomScrollView(
+              slivers: [
+                _buildSliverAppBar(listing),
+                SliverToBoxAdapter(child: _buildContent(listing, priceLabel)),
+              ],
+            ),
           ),
           Positioned(
             bottom: 0,
@@ -394,14 +400,34 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                 ),
               ),
             )
-          else
-            Text(
-              '${listing.reviewCount} reviews  ★ ${listing.rating?.toStringAsFixed(1) ?? '-'}',
-              style: const TextStyle(
-                fontSize: 15,
-                color: AppColors.textSecondary,
-              ),
-            ),
+          else ...[
+            Builder(builder: (context) {
+              final reviewsAsync = ref.watch(listingReviewsProvider(listing.id));
+              return reviewsAsync.when(
+                loading: () => const Column(
+                  children: [
+                    LoadingSkeleton(height: 80, borderRadius: 8),
+                    SizedBox(height: 8),
+                    LoadingSkeleton(height: 80, borderRadius: 8),
+                  ],
+                ),
+                error: (_, __) => const SizedBox.shrink(),
+                data: (page) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...page.content.take(3).map((r) => _ReviewTile(review: r)),
+                    if (listing.reviewCount > 3)
+                      TextButton(
+                        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Coming soon')),
+                        ),
+                        child: Text('See all ${listing.reviewCount} reviews'),
+                      ),
+                  ],
+                ),
+              );
+            }),
+          ],
 
           // Space for bottom bar
           const SizedBox(height: 100),
@@ -657,6 +683,90 @@ class _BottomBar extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// Review tile
+
+class _ReviewTile extends StatelessWidget {
+  final ReviewModel review;
+  const _ReviewTile({required this.review});
+
+  @override
+  Widget build(BuildContext context) {
+    final initial = review.authorName.isNotEmpty
+        ? review.authorName[0].toUpperCase()
+        : '?';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+            backgroundImage: review.authorAvatarUrl != null
+                ? CachedNetworkImageProvider(review.authorAvatarUrl!)
+                : null,
+            child: review.authorAvatarUrl == null
+                ? Text(
+                    initial,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  review.authorName,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: List.generate(5, (i) => Icon(
+                    Icons.star,
+                    size: 13,
+                    color: i < review.rating
+                        ? const Color(0xFFFFC107)
+                        : AppColors.border,
+                  )),
+                ),
+                if (review.comment != null && review.comment!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    review.comment!,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                Text(
+                  DateFormat('d MMM yyyy').format(review.createdAt),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

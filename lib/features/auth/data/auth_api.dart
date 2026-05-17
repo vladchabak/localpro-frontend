@@ -19,4 +19,8 @@ class AuthApi {
     final response = await _dio.put('/api/users/me', data: data);
     return UserModel.fromJson(response.data as Map<String, dynamic>);
   }
+
+  Future<void> uploadFcmToken(String token) async {
+    await _dio.put('/api/users/me/fcm-token', data: {'token': token});
+  }
 }

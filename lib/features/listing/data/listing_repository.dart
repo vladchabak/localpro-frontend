@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import '../../../core/models/page_response.dart';
 import '../../catalog/data/models/search_filter.dart';
 import 'listing_api.dart';
@@ -5,6 +6,7 @@ import 'models/category_model.dart';
 import 'models/listing_detail_model.dart';
 import 'models/listing_request_model.dart';
 import 'models/nearby_listing_model.dart';
+import 'models/review_model.dart';
 
 class ListingRepository {
   final ListingApi _api;
@@ -64,4 +66,24 @@ class ListingRepository {
     int size = 20,
   }) =>
       _api.getListingsByCategory(categoryId, page: page, size: size);
+
+  Future<String> uploadPhoto(String listingId, XFile photo) =>
+      _api.uploadPhoto(listingId, photo);
+
+  Future<void> deletePhoto(String listingId, String photoId) =>
+      _api.deletePhoto(listingId, photoId);
+
+  Future<void> reorderPhotos(String listingId, List<String> orderedIds) =>
+      _api.reorderPhotos(listingId, orderedIds);
+
+  Future<ReviewModel> submitReview(
+    String listingId,
+    int rating,
+    String comment,
+  ) => _api.submitReview(listingId, rating, comment);
+
+  Future<PageResponse<ReviewModel>> getReviews(
+    String listingId, {
+    int page = 0,
+  }) => _api.getReviews(listingId, page: page);
 }

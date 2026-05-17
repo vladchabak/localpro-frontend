@@ -18,7 +18,17 @@
       "PowerShell(tree *)",
       "Bash(Select-Object -ExpandProperty Name)",
       "Bash(Select-String -Pattern \"error|warning\")",
-      "PowerShell(flutter analyze *)"
+      "PowerShell(flutter analyze *)",
+      "Bash(measure-object -line)",
+      "Bash(cd C:\\\\\\\\Users\\\\\\\\vladc\\\\\\\\IdeaProjects\\\\\\\\localpro_mobile)",
+      "Bash(flutter test *)",
+      "Bash(dart analyze *)",
+      "Skill(codegen)",
+      "Bash(python -c \"from PIL import Image; print\\('pillow ok'\\)\")",
+      "Bash(python3 -c \"from PIL import Image; print\\('pillow ok'\\)\")",
+      "Bash(dart --version)",
+      "Bash(dart pub *)",
+      "Bash(dart run *)"
     ]
   }
 }

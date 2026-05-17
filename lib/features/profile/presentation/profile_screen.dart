@@ -85,6 +85,11 @@ class ProfileScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    tooltip: 'Edit profile',
+                    onPressed: () => context.push('/profile/edit'),
+                  ),
                 ],
               ),
             ),

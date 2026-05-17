@@ -10,12 +10,10 @@ class BookingSuccessScreen extends ConsumerWidget {
 
   const BookingSuccessScreen({super.key, required this.bookingId});
 
-  Future<void> _launchCalendar(String calendarType) async {
-    final url = calendarType == 'calendly'
-        ? 'https://calendly.com/mock-booking'
-        : 'https://calendar.google.com';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
@@ -101,40 +99,44 @@ class BookingSuccessScreen extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // Calendar buttons
-              Text('Add to calendar', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8)),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _launchCalendar('calendly'),
-                      icon: const Icon(Icons.calendar_today, size: 18),
-                      label: const Text('Calendly'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              if (booking.calendlyUrl != null || booking.googleCalendarUrl != null) ...[
+                Text('Add to calendar', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink3, letterSpacing: 0.8)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (booking.calendlyUrl != null)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _launchUrl(booking.calendlyUrl!),
+                          icon: const Icon(Icons.calendar_today, size: 18),
+                          label: const Text('Calendly'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _launchCalendar('google'),
-                      icon: const Icon(Icons.event_note, size: 18),
-                      label: const Text('Google'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    if (booking.calendlyUrl != null && booking.googleCalendarUrl != null) const SizedBox(width: 12),
+                    if (booking.googleCalendarUrl != null)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _launchUrl(booking.googleCalendarUrl!),
+                          icon: const Icon(Icons.event_note, size: 18),
+                          label: const Text('Google'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // Action buttons
               ElevatedButton(

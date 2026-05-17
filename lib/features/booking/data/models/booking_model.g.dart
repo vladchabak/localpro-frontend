@@ -40,7 +40,8 @@ BookingResponse _$BookingResponseFromJson(Map<String, dynamic> json) =>
     BookingResponse(
       id: json['id'] as String,
       status: $enumDecode(_$BookingStatusEnumMap, json['status']),
-      paymentStatus: $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']),
+      paymentStatus:
+          $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']),
       scheduledAt: DateTime.parse(json['scheduledAt'] as String),
       calendlyUrl: json['calendlyUrl'] as String?,
       googleCalendarUrl: json['googleCalendarUrl'] as String?,

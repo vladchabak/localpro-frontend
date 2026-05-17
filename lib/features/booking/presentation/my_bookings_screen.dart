@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_error_widget.dart';
 import '../../../core/widgets/loading_skeleton.dart';
+import '../../listing/domain/listing_providers.dart';
 import '../data/models/booking_model.dart';
 import '../domain/booking_providers.dart';
 
@@ -193,6 +194,16 @@ class _BookingCard extends ConsumerWidget {
               ),
             ),
           ],
+          if (booking.status == BookingStatus.completed) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => _showReviewSheet(context, ref),
+                child: const Text('Leave a Review'),
+              ),
+            ),
+          ],
         ],
       ),
     ),
@@ -238,5 +249,134 @@ class _BookingCard extends ConsumerWidget {
         );
       }
     }
+  }
+
+  void _showReviewSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => _ReviewSheet(
+        booking: booking,
+        onSubmitted: () => ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Review submitted!')),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReviewSheet extends ConsumerStatefulWidget {
+  final BookingResponse booking;
+  final VoidCallback onSubmitted;
+
+  const _ReviewSheet({required this.booking, required this.onSubmitted});
+
+  @override
+  ConsumerState<_ReviewSheet> createState() => _ReviewSheetState();
+}
+
+class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
+  int _rating = 0;
+  final _commentController = TextEditingController();
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_rating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a rating')),
+      );
+      return;
+    }
+    setState(() => _submitting = true);
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    try {
+      await ref.read(listingRepositoryProvider).submitReview(
+        widget.booking.listingId,
+        _rating,
+        _commentController.text.trim(),
+      );
+      ref.invalidate(listingDetailProvider(widget.booking.listingId));
+      if (mounted) {
+        nav.pop();
+        widget.onSubmitted();
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Failed to submit: $e')));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Review ${widget.booking.listingTitle}',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.ink),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(5, (i) {
+              final star = i + 1;
+              return GestureDetector(
+                onTap: () => setState(() => _rating = star),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Icon(
+                    Icons.star,
+                    size: 40,
+                    color: star <= _rating ? AppColors.primary : AppColors.line,
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _commentController,
+            maxLines: 4,
+            maxLength: 500,
+            decoration: const InputDecoration(
+              hintText: 'Tell others about your experience...',
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _submitting ? null : _submit,
+              child: _submitting
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Submit Review'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

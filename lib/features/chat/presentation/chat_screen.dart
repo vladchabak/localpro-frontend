@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -48,8 +49,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
       final stomp = ref.read(stompServiceProvider);
       if (!stomp.isConnected) {
-        stomp.connect(userId: user.id);
+        final token = await FirebaseAuth.instance.currentUser
+                ?.getIdToken(true) ??
+            'dev-token';
+        stomp.connect(userId: user.id, token: token);
       }
+
+      stomp.subscribeToChat(widget.chatId);
 
       _messageSubscription = stomp.messageStream.listen((message) {
         if (message.chatId == widget.chatId) {
@@ -67,6 +73,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void dispose() {
     _messageSubscription?.cancel();
+    final stomp = ref.read(stompServiceProvider);
+    stomp.unsubscribeFromChat(widget.chatId);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();

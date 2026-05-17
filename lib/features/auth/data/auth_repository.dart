@@ -45,4 +45,5 @@ class AuthRepository {
   Future<UserModel> getMe() => _api.getMe();
   Future<UserModel> updateProfile(Map<String, dynamic> data) =>
       _api.updateProfile(data);
+  Future<void> uploadFcmToken(String token) => _api.uploadFcmToken(token);
 }

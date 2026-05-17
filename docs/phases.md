@@ -1,7 +1,8 @@
 - [x] Phase 0 — pubspec.yaml + project structure + theme + router + Dio client
-- [ ] Phase 1 — Auth screens (Login, Splash, RegisterCompletion)
-- [ ] Phase 2 — Map screen (flutter_map, markers, bottom sheet, filters)
-- [ ] Phase 3 — ServiceCard + ListingDetail screen
-- [ ] Phase 4 — Chat (WebSocket + FCM)
-- [ ] Phase 5 — Provider dashboard + CreateListing
-- [ ] Phase 6 — Profile + polish + app icon
+- [x] Phase 1 — Auth screens (Login, Splash, test mode; RegisterCompletion skipped)
+- [x] Phase 2 — Map screen (flutter_map, markers, bottom sheet, filters)
+- [x] Phase 3 — ServiceCard + CatalogScreen + ListingDetail screen
+- [x] Phase 3.5 — Booking (BookingScreen, BookingSuccess, MyBookings, VerificationPrompt)
+- [x] Phase 4 — Chat (WebSocket STOMP + ChatList + ChatScreen; FCM not done)
+- [ ] Phase 5 — Provider dashboard ✅ + CreateListing ✅ + EditListing ⬜ + photo upload ⬜
+- [ ] Phase 6 — Profile ✅ + EditProfile ⬜ + app icon ⬜ + FCM ⬜ + connectivity banner ⬜

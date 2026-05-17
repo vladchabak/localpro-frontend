@@ -1,471 +1,284 @@
-# LocalPro Mobile — Claude Code Action Plan
+# LocalPro Mobile — Frontend Plan
 
 > **Stack:** Flutter 3.x · Dart · Riverpod 2 · Dio + Retrofit · flutter_map (OpenStreetMap) · Firebase Auth · STOMP WebSocket
 > **Repo:** `localPro-mobile`
-> Start this AFTER Phase 1 of the backend (Auth + Listings API) is working.
+> **Last synced:** 2026-05-17
 
 ---
 
-## Phase 0 — Project Scaffold
+## Status legend
+- ✅ Complete
+- 🔶 Partial / stub
+- ⬜ Not started
 
-### Prompt 1 — Flutter project structure
+---
+
+## Phase 0 — Project Scaffold ✅
+
+### Prompt 1 — Flutter project structure ✅
 ```
-Create a Flutter 3 project called "localpro" with the following structure and dependencies.
-
-pubspec.yaml dependencies:
-# State management
-riverpod: ^2.5.0
-flutter_riverpod: ^2.5.0
-riverpod_annotation: ^2.3.0
-
-# Navigation
-go_router: ^13.0.0
-
-# HTTP
-dio: ^5.4.0
-retrofit: ^4.1.0
-
-# Firebase
-firebase_core: ^2.27.0
-firebase_auth: ^4.17.0
-firebase_messaging: ^14.7.0
-google_sign_in: ^6.2.0
-
-# Maps
-flutter_map: ^6.1.0
-latlong2: ^0.9.0
-geolocator: ^11.0.0
-
-# Chat
-stomp_dart_client: ^1.0.0
-
-# UI
-cached_network_image: ^3.3.0
-flutter_secure_storage: ^9.0.0
-image_picker: ^1.0.0
-intl: ^0.19.0
-
-dev_dependencies:
-build_runner, riverpod_generator, retrofit_generator, json_serializable
-
-Directory structure:
-lib/
-  main.dart
-  app.dart                    (MaterialApp + GoRouter + ProviderScope)
-  core/
-    api/
-      api_client.dart         (Dio instance + JWT interceptor)
-      api_endpoints.dart      (all URL constants)
-    models/                   (shared data models)
-    widgets/                  (reusable widgets)
-    theme/
-      app_theme.dart
-      app_colors.dart
-  features/
-    auth/
-      data/
-      domain/
-      presentation/
-    map/
-      data/
-      domain/
-      presentation/
-    catalog/
-    listing/
-    chat/
-    provider_dashboard/
-    profile/
-
-Create app_colors.dart with an Airbnb-inspired palette:
-  primary: #FF385C (Airbnb red-pink)
-  secondary: #222222
-  surface: #FFFFFF
-  background: #F7F7F7
-  textPrimary: #222222
-  textSecondary: #717171
-  border: #DDDDDD
-  success: #008A05
+pubspec.yaml dependencies, directory layout, app_colors.dart with Airbnb palette.
+Done: all directories created, app_colors.dart implemented, theme wired up.
 ```
 
-### Prompt 2 — GoRouter navigation
+### Prompt 2 — GoRouter navigation ✅
 ```
-Create GoRouter navigation configuration for LocalPro Flutter app.
+Routes implemented: /splash, /auth/login, HomeShell (bottom nav: Map/Catalog/Chats/Profile),
+/listings/:id, /chats/:id, /provider/dashboard, /provider/listings/create,
+/provider/listings/:id/edit, /profile/edit, /booking, /booking/success/:id,
+/bookings, /listings/verify/:id.
 
-Routes:
-  /splash                     → SplashScreen (checks auth state)
-  /onboarding                 → OnboardingScreen
-  /auth/login                 → LoginScreen
-  /auth/register              → RegisterScreen (set name + role after Firebase login)
-
-  /                           → HomeShell (bottom nav: Map, Catalog, Chats, Profile)
-  /map                        → MapScreen
-  /catalog                    → CatalogScreen
-  /catalog/search             → SearchScreen
-  /listings/:id               → ListingDetailScreen
-  /listings/:id/book          → ContactProviderScreen
-  /chats                      → ChatListScreen
-  /chats/:id                  → ChatScreen
-  /profile                    → ProfileScreen
-  /profile/edit               → EditProfileScreen
-
-  /provider/dashboard         → ProviderDashboardScreen
-  /provider/listings/create   → CreateListingScreen
-  /provider/listings/:id/edit → EditListingScreen
-
-Auth redirect: if not logged in, redirect to /auth/login (except /splash and /onboarding).
-Use ShellRoute for the bottom navigation shell.
-
-Create the router in lib/core/router/app_router.dart.
-Use Riverpod authStateProvider to determine redirect.
+Note: /auth/register and /catalog/search routes were not added — flow handled differently.
 ```
 
-### Prompt 3 — Dio API client
+### Prompt 3 — Dio API client ✅
 ```
-Create the API client setup for LocalPro Flutter app.
-
-1. ApiClient (lib/core/api/api_client.dart):
-   - Dio instance with baseUrl from environment (const String apiBaseUrl)
-   - JwtInterceptor: before each request, get current Firebase ID token
-     (await FirebaseAuth.instance.currentUser?.getIdToken()), add as Bearer token
-   - Handle 401: refresh token and retry once
-   - Timeout: connectTimeout 15s, receiveTimeout 30s
-   - LogInterceptor in debug mode
-
-2. Create AppEnvironment class:
-   - apiBaseUrl: reads from --dart-define=API_BASE_URL=http://localhost:8080
-   - Defaults to localhost for dev
-
-3. Create base API error handling:
-   - ApiException class with statusCode, message, fieldErrors
-   - DioExceptionMapper: maps DioException → ApiException
-
-Run command: flutter run --dart-define=API_BASE_URL=https://your-api.railway.app
+ApiClient with JWT interceptor (Firebase ID token + dev-token fallback), 401 retry,
+timeouts, LogInterceptor in debug mode. AppEnvironment reads --dart-define=API_BASE_URL.
+ApiException + DioExceptionMapper implemented.
 ```
 
 ---
 
-## Phase 1 — Auth Screens
+## Phase 1 — Auth Screens ✅
 
-### Prompt 4 — Auth feature
+### Prompt 4 — Auth feature ✅
 ```
-Create the authentication feature for LocalPro Flutter app.
+AuthRepository: signInWithGoogle(), signInWithEmail(), signOut(), backend sync via POST /api/auth/register.
+Riverpod providers: authStateProvider (StreamProvider<User?>), currentUserProvider (FutureProvider<UserProfile?>).
 
-1. AuthRepository (lib/features/auth/data/auth_repository.dart):
-   - signInWithGoogle(): Future<UserCredential>
-   - signInWithEmail(email, password): Future<UserCredential>
-   - signOut(): Future<void>
-   - After Firebase sign-in: call POST /api/auth/register to create/sync backend profile
-   - Store firebase_uid in flutter_secure_storage
+LoginScreen: email/password fields, "Continue with Google" button, test-mode section
+(enter name → bypass Firebase, used during dev without real auth).
+SplashScreen: checks auth + test user, navigates to /map or /auth/login.
 
-2. Riverpod providers:
-   - authStateProvider: StreamProvider<User?> from FirebaseAuth.instance.authStateChanges()
-   - currentUserProvider: FutureProvider<UserProfile?> fetches backend profile
-
-3. LoginScreen:
-   - "Continue with Google" button (prominent, Airbnb-style)
-   - "Continue with email" collapsible section
-   - LocalPro logo + tagline at top
-   - No registration form — Google handles it
-
-4. RegisterCompletionScreen (shown once after first Google login):
-   - Set display name (pre-filled from Google)
-   - Choose role: "I need services" (CLIENT) or "I offer services" (PROVIDER)
-   - Or "Both" toggle
-
-5. SplashScreen:
-   - Checks authStateProvider
-   - Navigates to /map if logged in, /auth/login if not
-   - 1.5s minimum display with animated logo
-
-Use Riverpod ConsumerWidget throughout.
+Not done: RegisterCompletionScreen (role picker after first Google login — skipped for now).
 ```
 
 ---
 
-## Phase 2 — Map Screen
+## Phase 2 — Map Screen ✅
 
-### Prompt 5 — Map with markers
+### Prompt 5 — Map with markers ✅
 ```
-Create the Map screen for LocalPro Flutter app. Style inspiration: Airbnb map view.
+MapScreen: flutter_map + OpenStreetMap tiles, geolocator on first open,
+custom price-tag markers (white pill), selected marker (pink + pulse animation),
+tap marker → show bottom card, "My location" FAB.
 
-1. MapScreen (lib/features/map/presentation/map_screen.dart):
-   - flutter_map with OpenStreetMap tiles (https://tile.openstreetmap.org/{z}/{x}/{y}.png)
-   - Request user location with geolocator on first open
-   - Center map on user location with zoom 13
-   - "My location" FAB (bottom right)
+NearbyListingsProvider: lat/lng/radiusKm/categoryId, calls GET /api/listings/nearby,
+re-fetches on map drag (debounce).
 
-2. NearbyListingsProvider (Riverpod StateNotifierProvider):
-   - Holds: lat, lng, radiusKm, categoryId (nullable)
-   - Calls GET /api/listings/nearby when params change (debounce 500ms)
-   - Re-fetches when map is dragged to new center (use MapController onMapEvent)
+Bottom sheet (DraggableScrollableSheet): min/max heights, horizontal PageView of listing cards,
+syncs with selected marker.
 
-3. Markers on map:
-   - Custom price tag marker: white rounded pill "from $25" with shadow
-   - Selected marker: larger, pink (#FF385C) background
-   - Tap marker → select it → show bottom card
-
-4. Bottom sheet (DraggableScrollableSheet):
-   - min: 120px (shows 1 card peeking)
-   - max: 60% screen height
-   - Horizontal PageView of ListingCard widgets when map is shown
-   - Full scrollable list when expanded
-   - Syncs with selected marker (PageController)
-
-5. Top search bar (pinned):
-   - Tappable → navigates to /catalog/search
-   - Category filter chips (horizontal scroll): All, Cleaning, Plumbing, Tutoring, etc.
-   - Radius selector button → shows bottom sheet with slider (0.5 / 1 / 2 / 5 / 10 / 25 km)
+Top bar: category filter chips (horizontal scroll), radius selector (bottom sheet with slider).
 ```
 
-### Prompt 6 — Map/Catalog toggle
+### Prompt 6 — Map/List view toggle 🔶
 ```
-Add a Map/List view toggle to the LocalPro home screen.
-
-In HomeShell (bottom navigation shell), add a floating toggle button centered at the top:
-  [ Map ]  [ List ]
-Airbnb-style: pill shape, white background, subtle shadow.
-
-Map view → MapScreen (flutter_map)
-List view → CatalogScreen (scrollable grid of cards)
-
-Both views share the same NearbyListingsProvider state (same filters, same data).
-Switching views does NOT reload data.
-
-The toggle should be visible above the bottom navigation bar.
-Implement using IndexedStack so both screens maintain their scroll position.
+Map and Catalog are separate bottom-nav tabs rather than an IndexedStack toggle.
+Both share the same Riverpod provider state.
+The Airbnb-style floating pill toggle was not added — navigation via bottom bar instead.
 ```
 
 ---
 
-## Phase 3 — Listing Cards + Detail
+## Phase 3 — Listing Cards + Detail ✅
 
-### Prompt 7 — ServiceCard widget
+### Prompt 7 — ServiceCard widget ✅
 ```
-Create a reusable ServiceCard widget for LocalPro Flutter app. Airbnb aesthetic.
-
-ServiceCard (used in catalog list and map bottom sheet):
-  - Full-width photo carousel (PageView, dot indicators)
-    → photos from listing.photos list
-    → placeholder gradient if no photos
-  - Favorite button (heart icon, top right of photo, no functionality in MVP)
-  - Below photo:
-    - Row: category chip (small, grey) + distance ("1.2 km away")
-    - Title (16px, semi-bold, max 2 lines)
-    - Provider: avatar (24px circle) + name + rating (★ 4.8 · 24 reviews)
-    - Price: "from $25/hr" or "$120 fixed" (bold, right-aligned)
-  - Tap → navigate to /listings/:id
-
-Also create ServiceCardSkeleton (shimmer loading placeholder, same dimensions).
-Use cached_network_image for all photos.
-Card: white background, 12px corner radius, subtle shadow.
+ServiceCard (lib/features/listing/presentation/widgets/service_card.dart):
+photo carousel, category chip, distance, title, provider avatar + name + rating, price.
+CatalogListingCard variant used in catalog grid.
+LoadingSkeleton (shimmer-style) implemented in core/widgets/loading_skeleton.dart.
 ```
 
-### Prompt 8 — Listing detail screen
+### Prompt 8 — Listing detail screen ✅
 ```
-Create the ListingDetailScreen for LocalPro Flutter app. Airbnb listing page style.
+ListingDetailScreen: SliverAppBar with photo gallery, title, category chips,
+provider section, price section, description (expandable), location static map preview,
+reviews section (displays reviewCount + rating from listing model).
+Bottom bar: price + "Contact Provider" + "Book Now" buttons.
+listingDetailProvider(id) FutureProvider wired up.
 
-Route: /listings/:id
-
-Layout (CustomScrollView with SliverAppBar):
-
-1. SliverAppBar:
-   - expandedHeight: 300px
-   - Photo gallery (PageView): full-width photos with page indicator
-   - Back button + Share button overlaid
-   - Collapses to show listing title
-
-2. Sliver content:
-   - Title (22px bold)
-   - Category + City chips
-   - Divider
-   - Provider section:
-     - Avatar (56px) + name + "X services · ★ 4.8" + "View profile →"
-   - Divider
-   - Price section: big price display + price_type label
-   - Divider
-   - Description (expandable "Show more" after 4 lines)
-   - Divider
-   - Location section: small static map preview (flutter_map, non-interactive, 160px tall)
-     shows approximate area (blurred exact location)
-   - Reviews section: list of ReviewCard widgets (max 3, "Show all" button)
-
-3. Bottom bar (fixed):
-   - Left: price "from $25/hr"
-   - Right: Button "Contact Provider" (pink, Airbnb style)
-     → navigates to /chats (creates or opens existing chat with this provider)
-
-4. Providers: listingDetailProvider(id) FutureProvider<ListingDetail>
+Reviews: ✅
+  - GET /api/listings/{id}/reviews — displays up to 3 review tiles (avatar, name, stars, comment, date)
+  - "See all" stub if reviewCount > 3
+  - POST /api/listings/{id}/reviews — submit form (star picker + comment) in a bottom sheet
+    triggered from COMPLETED booking cards in MyBookingsScreen
 ```
 
 ---
 
-## Phase 4 — Chat
+## Phase 3.5 — Booking ✅ (added beyond original plan)
 
-### Prompt 9 — Chat feature
 ```
-Create the full chat feature for LocalPro Flutter app.
+Full booking flow implemented:
 
-1. ChatRepository:
-   - getChats(): Future<List<ChatSummary>> → GET /api/chats
-   - getMessages(chatId, page): Future<List<Message>> → GET /api/chats/{id}/messages
-   - startChat(providerId, listingId): Future<Chat> → POST /api/chats
-   - markRead(chatId): Future<void> → POST /api/chats/{id}/read
+BookingScreen (/booking):
+  - Date + time picker (custom InAppTimePicker widget)
+  - Payment type selector: CREDIT_CARD / CASH / BONUSES
+  - Calendar type: IN_APP / CALENDLY / GOOGLE_CALENDAR
+  - Notes field
+  - Calls POST /api/bookings
 
-2. WebSocket setup (StompChatService):
-   - Connect to wss://api/ws with Firebase JWT in header
-   - Subscribe to /user/queue/messages
-   - On message received: add to local message list via Riverpod state
-   - Auto-reconnect on disconnect (exponential backoff)
-   - Disconnect on logout
+BookingSuccessScreen (/booking/success/:id):
+  - Confirmation UI with booking details
 
-3. ChatListScreen (/chats):
-   - List of ChatSummaryTile widgets
-   - Each tile: provider/client avatar + name + listing title + last message preview
-     + time + unread count badge (red circle)
-   - Empty state: "No conversations yet" illustration + CTA button
-   - Pull to refresh
+MyBookingsScreen (/bookings):
+  - List of client's bookings with status chips (PENDING / CONFIRMED / CANCELLED / COMPLETED)
+  - Pull-to-refresh
+  - Accessible from Profile screen
+  - No cancel/confirm actions yet (awaiting backend steps 7–8)
 
-4. ChatScreen (/chats/:id):
-   - Bubble layout: own messages right (pink), other messages left (grey)
-   - Message: content + timestamp (HH:mm) + read receipt (✓✓ for own messages)
-   - Listing info card at top (listing title + photo thumbnail)
-   - Auto-scroll to bottom on new message
-   - Load older messages on scroll to top (pagination)
-   - Text input bar: multiline, send button (disabled when empty)
-   - Show typing indicator (future: STOMP /app/chat.typing)
+BookingRepository + BookingApi wired up.
+BookingResponse: flat model (id, status, paymentStatus, scheduledAt, calendlyUrl,
+  googleCalendarUrl, totalPrice, listingId, listingTitle, providerId, providerName, createdAt).
 
-5. FCM: handle background + foreground push notifications.
-   Tap on notification → navigate to correct ChatScreen.
+VerificationPromptScreen (/listings/verify/:id):
+  - Shown when a listing requires provider verification before booking.
+
+Pending (blocked by backend improvements steps 3–10):
+  - Nested DTOs (listing, provider, customer, payment, calendar, actions)
+  - canCancel / canConfirm flags
+  - GET /api/bookings/{id} (step 8)
+  - PUT /api/bookings/{id}/complete (step 8)
+  - Pagination on GET /api/bookings/my (step 9)
+  - Idempotency header (step 5)
 ```
 
 ---
 
-## Phase 5 — Provider Dashboard
+## Phase 4 — Chat ✅
 
-### Prompt 10 — Provider listing management
+### Prompt 9 — Chat feature ✅
 ```
-Create the provider dashboard feature for LocalPro Flutter app.
+ChatRepository: getChats(), getMessages(chatId, page), startChat(providerId, listingId), markRead(chatId).
 
-1. ProviderDashboardScreen (/provider/dashboard):
-   - Header: "My Services" + "Add new" button
-   - Stats row: total listings, total views, total chats (future data)
-   - List of own service listings (ProviderListingTile):
-     - First photo thumbnail (80px)
-     - Title + category + price
-     - Status chip: ACTIVE (green) / PAUSED (grey)
-     - View count
-     - Row of action buttons: Edit | Pause/Activate | Delete
-   - Empty state with CTA to create first listing
+StompChatService: connects to ws/wss with Firebase JWT, subscribes to /user/queue/messages,
+auto-reconnect (exponential backoff), disconnects on logout.
 
-2. CreateListingScreen (/provider/listings/create):
-   Step 1 — Basic info:
-     - Title (required)
-     - Category picker (tree: tap category → shows subcategories)
-     - Description (multiline, 1000 char limit with counter)
-     - Price + price type selector (Fixed / Hourly / Starting from)
-   Step 2 — Location:
-     - Interactive flutter_map: user taps to place pin
-     - Address text field (manual input for MVP, geocoding post-MVP)
-   Step 3 — Photos:
-     - ImagePicker: up to 8 photos
-     - Reorderable grid
-     - Upload to POST /api/listings/{id}/photos immediately after listing created
-   Step 4 — Review + Submit:
-     - Preview card (looks like ServiceCard)
-     - "Publish listing" button
+ChatListScreen (/chats):
+  - ChatSummaryTile: avatar + name + listing title + last message + time + unread badge
+  - Empty state, pull-to-refresh.
+  - Unread count badge shown on bottom-nav Messages tab.
 
-3. EditListingScreen: same form, pre-filled with existing data.
+ChatScreen (/chats/:id):
+  - Bubble layout (own = right pink, other = left grey)
+  - Listing info card at top, auto-scroll to bottom, pagination on scroll-up
+  - Text input + send button, typing indicator stub.
 
-4. Show progress indicator (step 1/4) at top.
-   Save draft locally (SharedPreferences) if user leaves midway.
+FCM push notifications: 🔶 PARTIAL
+  - FcmService (lib/core/notifications/fcm_service.dart): foreground banner, background tap,
+    terminated-state tap → routes to /chats/:id or /chats.
+  - FCM token uploaded to backend on login + onTokenRefresh (PUT /api/users/me/fcm-token). ✅
+  - Backend FCM send on booking created: ⬜ NOT done (backend step 10).
 ```
 
 ---
 
-## Phase 6 — Profile + Polish
+## Phase 5 — Provider Dashboard ✅
 
-### Prompt 11 — Profile screen
+### Prompt 10 — Provider listing management ✅
 ```
-Create the Profile screen for LocalPro Flutter app.
+ProviderDashboardScreen (/provider/dashboard): ✅
+  - "My Services" header + "Add" icon button
+  - List of own listings (thumbnail, title, category, price, status chip, view count)
+  - Edit / Pause|Activate / Delete actions
+  - Pull-to-refresh ✅
+  - Empty state with CTA
 
-ProfileScreen (/profile):
-  - Avatar (96px circle) with edit button
-  - Name + email
-  - Role chips: CLIENT / PROVIDER (tappable to switch if BOTH)
-  - Menu items list (Airbnb settings style):
-    - "My bookings" (future)
-    - "Payment methods" (stub → "Coming soon" snackbar)
-    - "Notifications" → placeholder
-    - "Help & Support" → opens mailto or URL
-    - "Privacy Policy" → webview
-  - "Switch to provider mode" button (if role is CLIENT → goes to ProviderDashboard)
-  - Sign out button (bottom, red text)
+CreateListingScreen (/provider/listings/create): ✅
+  - Step 1: title, category picker, description (1000 char)
+  - Step 2: price + price type (per service / per hour / by agreement)
+  - Step 3: interactive flutter_map pin placement + city + address fields
+  - Step 4: photo upload (ImagePicker → POST /api/listings/{id}/photos, up to 8 photos) ✅
+  - Step 5: custom questions for customers (up to 5, quick-add suggestions by category) ✅
+  - Step 6: review + submit
+  - Progress indicator at top
 
-EditProfileScreen (/profile/edit):
-  - Avatar: tappable → ImagePicker → upload to Cloudinary → update avatarUrl
-  - Name field
-  - Bio field (multiline)
-  - Phone field
-  - Save button
+EditListingScreen (/provider/listings/:id/edit): ✅
+  - Same 6-step form pre-filled from listingDetailProvider
+  - Photo management: view existing, delete (DELETE /api/listings/{id}/photos/{photoId}) ✅
+  - No new photo upload in edit (add photos → not wired)
+  - Submits via PUT /api/listings/{id}
 
-```
-
-### Prompt 12 — Loading states + error handling
-```
-Add consistent loading states and error handling throughout LocalPro Flutter app.
-
-1. Create AppErrorWidget (reusable):
-   - Shows error illustration + message + "Try again" button
-   - Different messages for: no internet, server error, not found
-
-2. Create ShimmerLoading utility:
-   - ServiceCardSkeleton (matches ServiceCard dimensions)
-   - ChatTileSkeleton
-   - ListingDetailSkeleton
-   Use shimmer: ^3.0.0 package.
-
-3. Wrap all AsyncValue usages with consistent when() pattern:
-   - loading: → show skeleton (not spinner)
-   - error: → show AppErrorWidget
-   - data: → show content
-
-4. Network connectivity: use connectivity_plus to show "No internet" banner.
-
-5. Pull-to-refresh on: MapScreen bottom sheet, CatalogScreen, ChatListScreen, ProviderDashboard.
-
-6. Optimistic UI for: sending chat messages (show immediately, grey out if send fails).
-```
-
-### Prompt 13 — App icon + splash + flavors
-```
-Configure app identity and environments for LocalPro Flutter app.
-
-1. flutter_launcher_icons:
-   - Create app icon: simple "LP" text on pink (#FF385C) background with rounded corners
-   - Generate for both Android and iOS
-
-2. flutter_native_splash:
-   - White background + centered LocalPro logo (pink)
-   - 2.5s display minimum
-
-3. Flavors (dart-define based, not Flutter flavors for simplicity):
-   - dev: API = http://localhost:8080, app name = "LocalPro Dev"
-   - prod: API = https://api.railway.app, app name = "LocalPro"
-
-4. Create launch configs in .vscode/launch.json:
-   {
-     "name": "LocalPro Dev",
-     "flutterMode": "debug",
-     "args": ["--dart-define=API_BASE_URL=http://10.0.2.2:8080", "--dart-define=ENV=dev"]
-   }
-
-5. android/app/build.gradle: set applicationId to com.localpro.app
-   ios/Runner/Info.plist: set CFBundleIdentifier to com.localpro.app
+Draft save to SharedPreferences: ⬜ NOT implemented
 ```
 
 ---
 
-## Key Flutter Patterns to Follow
+## Phase 6 — Profile + Polish 🔶
+
+### Prompt 11 — Profile screen 🔶
+```
+ProfileScreen (/profile): ✅
+  - Avatar (initials), name, email, role chip
+  - My Services section: inline list of own listings with verified status
+  - Menu: Add New Service, My Chats, Payments (stub), Exit Test Mode, Sign out
+
+EditProfileScreen (/profile/edit): ✅
+  - Name (required), bio, phone fields pre-filled from currentUserProvider
+  - Save calls PUT /api/users/me, invalidates currentUserProvider, pops back
+  - Avatar shows initials circle; photo upload deferred (Cloudinary not wired on backend)
+```
+
+### Prompt 12 — Loading states + error handling 🔶
+```
+AppErrorWidget: ✅ (message + "Try again" button)
+LoadingSkeleton: ✅ (shimmer-style skeletons used in map and detail screens)
+AsyncValue.when() pattern: ✅ used consistently throughout
+
+connectivity_plus "No internet" banner: ✅ implemented (ConnectivityBanner widget in App builder, AnimatedSize slide-in)
+Pull-to-refresh:
+  - ChatListScreen: ✅
+  - CatalogScreen: ✅
+  - ProviderDashboard: ✅
+  - MapScreen bottom sheet: ⬜ NOT implemented
+Optimistic UI for chat messages: ⬜ NOT implemented
+```
+
+### Prompt 13 — App icon + splash + flavors ✅
+```
+flutter_launcher_icons: ✅ configured (adaptive icon, background #0E5C5C)
+flutter_native_splash: ✅ configured (teal background + white LocalPro wordmark)
+android applicationId / iOS bundleId set to com.localpro.app: ⬜ NOT done
+```
+
+---
+
+## Backend-Ready APIs Not Yet Used in Frontend
+
+These backend endpoints are live and tested but have no frontend integration:
+
+| Endpoint | Use case | Priority |
+|---|---|---|
+| `GET /api/listings/popular` | "Popular near you" section on map/home | ✅ Done |
+| `GET /api/listings/recent` | "Recently added" section in catalog | ✅ Done |
+| `GET /api/listings/category/{id}` | Deep-link to category results | Low |
+| `POST /api/listings/{id}/reviews` | Submit review after completed booking | ✅ Done |
+| `GET /api/listings/{id}/reviews` | Load full paginated review list | ✅ Done |
+| `PUT /api/users/me` | EditProfileScreen save | ✅ Done |
+| `PUT /api/users/me/fcm-token` | Upload FCM token on login | ✅ Done |
+| `PUT /api/bookings/{id}/confirm` | Provider confirms booking | Medium |
+
+---
+
+## Remaining Work (priority order)
+
+1. ~~**FCM token upload**~~ ✅ Done
+2. ~~**EditProfileScreen**~~ ✅ Done
+3. ~~**Submit review**~~ ✅ Done
+4. **Booking improvements sync** — update `BookingResponse` model + `MyBookingsScreen` once backend ships nested DTOs + `canCancel`/`canConfirm` flags (steps 6–9)
+5. ~~**App icon + splash**~~ ✅ Done
+6. ~~**"No internet" banner**~~ ✅ Done
+7. ~~**Popular/Recent sections**~~ ✅ Done
+8. **Draft save** — SharedPreferences for half-filled CreateListing form
+9. **RegisterCompletionScreen** — role picker shown once after first Google sign-in
+10. **Photo upload in EditListing** — wire ImagePicker → `POST /api/listings/{id}/photos` in step 4
+
+---
+
+## Key Flutter Patterns
 
 ### Riverpod provider structure (per feature)
 ```dart
@@ -517,12 +330,12 @@ abstract class ListingApi {
 # Android emulator (API URL uses 10.0.2.2 for localhost)
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080
 
-# iOS simulator
-flutter run --dart-define=API_BASE_URL=http://localhost:8080
+# Chrome (web)
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
 
 # Run tests
 flutter test
 
 # Build APK for testing
-flutter build apk --dart-define=API_BASE_URL=https://your-api.railway.app
+flutter build apk --dart-define=API_BASE_URL=https://demo-production-2680.up.railway.app
 ```

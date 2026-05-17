@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../notifications/fcm_service.dart';
 import '../providers/test_user_provider.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/domain/auth_providers.dart';
@@ -14,10 +17,12 @@ import '../../features/chat/presentation/chat_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
 import '../../features/listing/data/models/listing_detail_model.dart';
 import '../../features/listing/presentation/create_listing_screen.dart';
+import '../../features/listing/presentation/edit_listing_screen.dart';
 import '../../features/listing/presentation/listing_detail_screen.dart';
 import '../../features/listing/presentation/verification_prompt_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/chat/domain/chat_providers.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/provider_dashboard/presentation/provider_dashboard_screen.dart';
 
@@ -81,6 +86,12 @@ final appRouter = GoRouter(
       builder: (context, state) => const CreateListingScreen(),
     ),
     GoRoute(
+      path: '/provider/listings/:id/edit',
+      builder: (context, state) => EditListingScreen(
+        listingId: state.pathParameters['id']!,
+      ),
+    ),
+    GoRoute(
       path: '/listings/verify/:id',
       builder: (context, state) => VerificationPromptScreen(
         listingId: state.pathParameters['id']!,
@@ -135,6 +146,13 @@ class SplashScreen extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
 
     authState.whenData((user) {
+      if (user != null && !kIsWeb) {
+        final repo = ref.read(authRepositoryProvider);
+        FcmService.setTokenUpload((t) => repo.uploadFcmToken(t));
+        FirebaseMessaging.instance.getToken().then((t) {
+          if (t != null) repo.uploadFcmToken(t).ignore();
+        });
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) {
           context.go(user != null ? '/map' : '/auth/login');
@@ -148,26 +166,7 @@ class SplashScreen extends ConsumerWidget {
       });
     }
 
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'LocalPro',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-            ),
-            SizedBox(height: 24),
-            CircularProgressIndicator(color: AppColors.primary),
-          ],
-        ),
-      ),
-    );
+    return const Scaffold(backgroundColor: Color(0xFF0E5C5C));
   }
 }
 
@@ -266,12 +265,3 @@ class _NavBadge extends StatelessWidget {
   );
 }
 
-// Placeholder screens (replaced in later phases)
-
-class EditProfileScreen extends StatelessWidget {
-  const EditProfileScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Scaffold(
-        body: Center(child: Text('Edit Profile — coming soon')),
-      );
-}

@@ -1,11 +1,13 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/api/core_providers.dart';
+import '../../../core/models/page_response.dart';
 import '../data/listing_api.dart';
 import '../data/listing_repository.dart';
 import '../data/models/category_model.dart';
 import '../data/models/listing_detail_model.dart';
 import '../data/models/listing_request_model.dart';
 import '../data/models/nearby_listing_model.dart';
+import '../data/models/review_model.dart';
 
 part 'listing_providers.g.dart';
 
@@ -108,3 +110,10 @@ Future<ListingDetailModel> createListing(
 @riverpod
 Future<void> verifyListing(VerifyListingRef ref, String id) =>
     ref.read(listingRepositoryProvider).verifyListing(id);
+
+@riverpod
+Future<PageResponse<ReviewModel>> listingReviews(
+  ListingReviewsRef ref,
+  String id,
+) =>
+    ref.watch(listingRepositoryProvider).getReviews(id);

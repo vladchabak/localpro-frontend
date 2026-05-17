@@ -27,6 +27,7 @@ dependencies:
 
   # Location
   geolocator: ^11.0.0
+  connectivity_plus: ^6.0.3
 
   # Firebase
   firebase_core: ^2.27.0
@@ -53,6 +54,29 @@ dev_dependencies:
   build_runner: ^2.4.9
   riverpod_generator: ^2.4.0
   json_serializable: ^6.8.0
+  mocktail: ^1.0.5
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#0E5C5C"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  min_sdk_android: 21
+
+flutter_native_splash:
+  color: "#0E5C5C"
+  color_dark: "#0A4747"
+  image: assets/icon/splash_logo.png
+  android: true
+  ios: true
+  android_12:
+    color: "#0E5C5C"
+    icon_background_color: "#0E5C5C"
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/

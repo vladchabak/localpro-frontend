@@ -20,7 +20,7 @@ final authApiProvider = AutoDisposeProvider<AuthApi>.internal(
 );
 
 typedef AuthApiRef = AutoDisposeProviderRef<AuthApi>;
-String _$authRepositoryHash() => r'eabe0aa310a992d59af04651cecd6b5dcebd1955';
+String _$authRepositoryHash() => r'952461bbbbc302bbbf3830764d15fe1cb3beac28';
 
 /// See also [authRepository].
 @ProviderFor(authRepository)

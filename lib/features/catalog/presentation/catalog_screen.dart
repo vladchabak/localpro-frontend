@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_error_widget.dart';
 import '../../listing/data/models/listing_detail_model.dart';
@@ -31,6 +33,11 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   Widget build(BuildContext context) {
     final searchState = ref.watch(catalogSearchProvider);
     final resultsAsync = ref.watch(catalogSearchResultsProvider);
+    final isDefaultSearch = searchState.query.isEmpty &&
+        searchState.categoryId == null &&
+        (searchState.city == null || searchState.city!.isEmpty);
+    final recentListingsAsync =
+        isDefaultSearch ? ref.watch(recentListingsProvider) : null;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -39,6 +46,9 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
           children: [
             // Search bar + toggle
             _buildSearchBar(),
+
+            // Most Used Services Button
+            _buildMostUsedButton(),
 
             // Filter chips
             _buildFilterChips(searchState),
@@ -98,7 +108,46 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                   }
                   return Column(
                     children: [
-                      Expanded(child: _buildResultsGrid(results)),
+                      if (recentListingsAsync != null) ...[
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+                          child: Row(children: [
+                            Text('Recently added',
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700)),
+                            Spacer(),
+                          ]),
+                        ),
+                        SizedBox(
+                          height: 110,
+                          child: recentListingsAsync.when(
+                            loading: () => const _HorizontalSkeletons(),
+                            error: (_, __) => const SizedBox.shrink(),
+                            data: (items) => ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16),
+                              itemCount: items.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 10),
+                              itemBuilder: (_, i) =>
+                                  _RecentChip(listing: items[i]),
+                            ),
+                          ),
+                        ),
+                      ],
+                      Expanded(
+                        child: RefreshIndicator(
+                          color: AppColors.primary,
+                          onRefresh: () async {
+                            ref.invalidate(catalogSearchProvider);
+                            ref.invalidate(catalogSearchResultsProvider);
+                            ref.invalidate(categoriesProvider);
+                          },
+                          child: _buildResultsGrid(results),
+                        ),
+                      ),
                       if (results.length >= 10)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -175,6 +224,53 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMostUsedButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: SizedBox(
+        width: double.infinity,
+        child: Material(
+          color: Colors.transparent,
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.primary, Color(0xFFE85D9A)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                ref.read(catalogSearchProvider.notifier).setSortBy('most_used');
+                ref.invalidate(catalogSearchResultsProvider);
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.trending_up, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Most Used Services',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -497,7 +593,7 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.search_off,
             size: 64,
             color: AppColors.ink3,
@@ -555,6 +651,92 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
         decoration: BoxDecoration(
           color: AppColors.line,
           borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+}
+
+class _HorizontalSkeletons extends StatelessWidget {
+  const _HorizontalSkeletons();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: 5,
+      separatorBuilder: (_, __) => const SizedBox(width: 10),
+      itemBuilder: (_, __) => Container(
+        width: 140,
+        decoration: BoxDecoration(
+          color: AppColors.line,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+}
+
+class _RecentChip extends StatelessWidget {
+  final ListingDetailModel listing;
+  const _RecentChip({required this.listing});
+
+  @override
+  Widget build(BuildContext context) {
+    final photoUrl =
+        listing.photoUrls.isNotEmpty ? listing.photoUrls.first : null;
+
+    return GestureDetector(
+      onTap: () => context.push('/listings/${listing.id}'),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          width: 140,
+          height: 100,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (photoUrl != null)
+                CachedNetworkImage(
+                  imageUrl: photoUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) =>
+                      Container(color: AppColors.primarySoft),
+                  errorWidget: (_, __, ___) =>
+                      Container(color: AppColors.primarySoft),
+                )
+              else
+                Container(color: AppColors.primarySoft),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.6),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: 8,
+                child: Text(
+                  listing.title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

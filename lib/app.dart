@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/providers/test_user_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/connectivity_banner.dart';
+
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -13,10 +17,11 @@ class App extends ConsumerWidget {
       title: 'LocalPro',
       theme: AppTheme.light,
       routerConfig: appRouter,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
         final testUser = ref.watch(testUserNotifierProvider);
-        if (testUser == null) return child!;
+        if (testUser == null) return ConnectivityBanner(child: child!);
 
         final topPadding = MediaQuery.of(context).padding.top;
         return Column(
@@ -37,11 +42,13 @@ class App extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  padding: MediaQuery.of(context).padding.copyWith(top: 0),
+              child: ConnectivityBanner(
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    padding: MediaQuery.of(context).padding.copyWith(top: 0),
+                  ),
+                  child: child!,
                 ),
-                child: child!,
               ),
             ),
           ],

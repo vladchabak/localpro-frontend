@@ -201,7 +201,7 @@ class _BookingDetailProviderElement
   String get id => (origin as BookingDetailProvider).id;
 }
 
-String _$createBookingHash() => r'c4b22459398ee62aed8b00771c97082ba20eac0a';
+String _$createBookingHash() => r'c3525d73c79986c7fee4205973fdf2f27ddac628';
 
 /// See also [createBooking].
 @ProviderFor(createBooking)
@@ -330,7 +330,7 @@ class _CreateBookingProviderElement
   BookingRequest get request => (origin as CreateBookingProvider).request;
 }
 
-String _$cancelBookingHash() => r'2269ebe1dbaa5f08b4ca7cc334a489b9debeb1a4';
+String _$cancelBookingHash() => r'e181d4a6ccae3e8e41da0ca38f9e3d917ba1f5af';
 
 /// See also [cancelBooking].
 @ProviderFor(cancelBooking)

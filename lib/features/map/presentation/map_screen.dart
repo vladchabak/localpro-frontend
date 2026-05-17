@@ -11,6 +11,8 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_error_widget.dart';
 import '../../../core/widgets/loading_skeleton.dart';
+import '../../catalog/domain/catalog_providers.dart';
+import '../../catalog/presentation/widgets/catalog_listing_card.dart';
 import '../../listing/data/models/category_model.dart';
 import '../../listing/data/models/nearby_listing_model.dart';
 import '../../listing/domain/listing_providers.dart';
@@ -542,14 +544,15 @@ class _BottomSheet extends StatelessWidget {
   }
 }
 
-class _SheetContent extends StatelessWidget {
+class _SheetContent extends ConsumerWidget {
   final List<NearbyListingModel> listings;
   final Animation<double> pulseAnim;
 
   const _SheetContent({required this.listings, required this.pulseAnim});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final popularListingsAsync = ref.watch(popularListingsProvider);
     if (listings.isEmpty) {
       return const Padding(
         padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
@@ -663,6 +666,33 @@ class _SheetContent extends StatelessWidget {
             ),
           ),
         ],
+
+        // ── Popular in your area ────────────────────────────────────────
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text('Popular in your area',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.ink)),
+        ),
+        SizedBox(
+          height: 220,
+          child: popularListingsAsync.when(
+            loading: () => const _HorizontalSkeletons(),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (items) => ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (_, i) => SizedBox(
+                width: 200,
+                child: CatalogListingCard(listing: items[i]),
+              ),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
       ],
     );
@@ -1015,6 +1045,29 @@ class _ViewAllButton extends StatelessWidget {
             Icon(Icons.arrow_forward_ios_rounded,
                 size: 11, color: AppColors.primary),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Horizontal skeletons (used inside popular/recent rows) ────────────────────
+
+class _HorizontalSkeletons extends StatelessWidget {
+  const _HorizontalSkeletons();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: 4,
+      separatorBuilder: (_, __) => const SizedBox(width: 12),
+      itemBuilder: (_, __) => Container(
+        width: 200,
+        decoration: BoxDecoration(
+          color: AppColors.line,
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

@@ -7,7 +7,7 @@ part of 'catalog_providers.dart';
 // **************************************************************************
 
 String _$catalogSearchResultsHash() =>
-    r'ff093902bf9b15a1cf3275c599313f4d10d01985';
+    r'9d8a0c6f23f1ad7bb7c7e1b8aae6730aa2b52616';
 
 /// See also [catalogSearchResults].
 @ProviderFor(catalogSearchResults)
@@ -24,7 +24,7 @@ final catalogSearchResultsProvider =
 
 typedef CatalogSearchResultsRef
     = AutoDisposeFutureProviderRef<List<ListingDetailModel>>;
-String _$popularListingsHash() => r'1db0131be37b539e7218980071d65da627da9ffc';
+String _$popularListingsHash() => r'156d4a6a4bfae91bf138d1e9cb50ef7cc9baef1a';
 
 /// See also [popularListings].
 @ProviderFor(popularListings)
@@ -41,7 +41,7 @@ final popularListingsProvider =
 
 typedef PopularListingsRef
     = AutoDisposeFutureProviderRef<List<ListingDetailModel>>;
-String _$recentListingsHash() => r'827c191e66f623dbe7430e84400c4d7318798008';
+String _$recentListingsHash() => r'14019dbebb88b7a918c2ef0066e260d7e8138e50';
 
 /// See also [recentListings].
 @ProviderFor(recentListings)

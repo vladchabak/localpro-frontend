@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/models/page_response.dart';
 import '../../catalog/data/models/search_filter.dart';
 import 'models/category_model.dart';
 import 'models/listing_detail_model.dart';
 import 'models/listing_request_model.dart';
 import 'models/nearby_listing_model.dart';
+import 'models/review_model.dart';
 
 class ListingApi {
   final Dio _dio;
@@ -126,6 +128,55 @@ class ListingApi {
     return PageResponse.fromJson(
       response.data as Map<String, dynamic>,
       (json) => ListingDetailModel.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<String> uploadPhoto(String listingId, XFile photo) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        photo.path,
+        filename: photo.name,
+      ),
+    });
+    final response = await _dio.post(
+      '/api/listings/$listingId/photos',
+      data: formData,
+    );
+    return (response.data as Map<String, dynamic>)['url'] as String;
+  }
+
+  Future<void> deletePhoto(String listingId, String photoId) =>
+      _dio.delete('/api/listings/$listingId/photos/$photoId');
+
+  Future<void> reorderPhotos(String listingId, List<String> orderedIds) =>
+      _dio.put(
+        '/api/listings/$listingId/photos/order',
+        data: {'photoIds': orderedIds},
+      );
+
+  Future<ReviewModel> submitReview(
+    String listingId,
+    int rating,
+    String comment,
+  ) async {
+    final response = await _dio.post(
+      '/api/listings/$listingId/reviews',
+      data: {'rating': rating, 'comment': comment},
+    );
+    return ReviewModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<PageResponse<ReviewModel>> getReviews(
+    String listingId, {
+    int page = 0,
+  }) async {
+    final response = await _dio.get(
+      '/api/listings/$listingId/reviews',
+      queryParameters: {'page': page, 'size': 10},
+    );
+    return PageResponse.fromJson(
+      response.data as Map<String, dynamic>,
+      (json) => ReviewModel.fromJson(json as Map<String, dynamic>),
     );
   }
 }

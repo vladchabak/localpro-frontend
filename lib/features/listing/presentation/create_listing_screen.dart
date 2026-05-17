@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/theme/app_colors.dart';
 import '../data/models/listing_request_model.dart';
 import '../domain/listing_providers.dart';
+import 'widgets/listing_form_helpers.dart';
 
 class CreateListingScreen extends ConsumerStatefulWidget {
   const CreateListingScreen({super.key});
@@ -37,6 +41,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   double? _selectedLng;
 
   // Step 4
+  List<XFile> _selectedPhotos = [];
+
+  // Step 5
   final _customQuestions = <String>[];
   final _questionController = TextEditingController();
 
@@ -159,8 +166,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
       case 1:
       case 2:
       case 3:
-        _goToPage(_currentStep + 1);
       case 4:
+        _goToPage(_currentStep + 1);
+      case 5:
         _submitListing();
       default:
         break;
@@ -276,6 +284,16 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
       final listing =
           await ref.read(listingRepositoryProvider).createListing(request);
       if (!mounted) return;
+
+      for (final photo in _selectedPhotos) {
+        try {
+          await ref.read(listingRepositoryProvider).uploadPhoto(listing.id, photo);
+        } catch (e) {
+          debugPrint('Photo upload failed: $e');
+        }
+      }
+
+      if (!mounted) return;
       ref.invalidate(nearbyListingsProvider);
       ref.invalidate(myListingsProvider);
       context.push('/listings/verify/${listing.id}');
@@ -300,7 +318,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
           child: LinearProgressIndicator(
-            value: (_currentStep + 1) / 5,
+            value: (_currentStep + 1) / 6,
             backgroundColor: AppColors.border,
             valueColor:
                 const AlwaysStoppedAnimation<Color>(AppColors.primary),
@@ -316,8 +334,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           _buildStep1(),
           _buildStep2(),
           _buildStep3(),
-          _buildStep4(),
-          _buildStep5(),
+          _buildStep4Photos(),
+          _buildStep5Questions(),
+          _buildStep6Review(),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -350,7 +369,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _currentStep == 4
+                  child: _currentStep == 5
                       ? (_isSubmitting
                           ? const SizedBox(
                               width: 22,
@@ -400,7 +419,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
-          const _Label('Service title *'),
+          const ListingFormLabel('Service title *'),
           const SizedBox(height: 8),
           TextField(
             controller: _titleController,
@@ -410,7 +429,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const _Label('Category *'),
+          const ListingFormLabel('Category *'),
           const SizedBox(height: 8),
           GestureDetector(
             onTap: _showCategoryPicker,
@@ -442,7 +461,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const _Label('Description'),
+          const ListingFormLabel('Description'),
           const SizedBox(height: 8),
           TextField(
             controller: _descriptionController,
@@ -475,24 +494,24 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
-          const _Label('Price type'),
+          const ListingFormLabel('Price type'),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             children: [
-              _PriceTypeButton(
+              ListingPriceTypeButton(
                 label: 'Per Service',
                 value: PriceType.perService,
                 selected: _priceType == PriceType.perService,
                 onTap: () => setState(() => _priceType = PriceType.perService),
               ),
-              _PriceTypeButton(
+              ListingPriceTypeButton(
                 label: 'Per Hour',
                 value: PriceType.perHour,
                 selected: _priceType == PriceType.perHour,
                 onTap: () => setState(() => _priceType = PriceType.perHour),
               ),
-              _PriceTypeButton(
+              ListingPriceTypeButton(
                 label: 'By Agreement',
                 value: PriceType.negotiable,
                 selected: _priceType == PriceType.negotiable,
@@ -502,7 +521,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           ),
           const SizedBox(height: 24),
           if (_priceType != PriceType.negotiable) ...[
-            const _Label('Price (€)'),
+            const ListingFormLabel('Price (€)'),
             const SizedBox(height: 8),
             TextField(
               controller: _priceController,
@@ -544,14 +563,14 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
-          const _Label('City'),
+          const ListingFormLabel('City'),
           const SizedBox(height: 8),
           TextField(
             controller: _cityController,
             decoration: const InputDecoration(hintText: 'e.g. Paris'),
           ),
           const SizedBox(height: 16),
-          const _Label('Address'),
+          const ListingFormLabel('Address'),
           const SizedBox(height: 8),
           TextField(
             controller: _addressController,
@@ -561,7 +580,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const _Label('Pin your location on map'),
+          const ListingFormLabel('Pin your location on map'),
           const SizedBox(height: 4),
           const Text(
             'Tap the map to set your service location',
@@ -627,8 +646,135 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     );
   }
 
-  // Step 4 — Custom Questions
-  Widget _buildStep4() {
+  // Step 4 — Photos
+  Widget _buildStep4Photos() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Add photos',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Step 4 of 6',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () async {
+              final picker = ImagePicker();
+              final picked = await picker.pickMultiImage(limit: 8);
+              if (picked.isNotEmpty) {
+                setState(() => _selectedPhotos = picked);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              minimumSize: const Size(double.infinity, 52),
+            ),
+            child: const Text(
+              'Pick Photos',
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
+          ),
+          const SizedBox(height: 24),
+          if (_selectedPhotos.isEmpty)
+            Container(
+              height: 120,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.border,
+                  style: BorderStyle.solid,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                color: const Color(0xFFF5F5F5),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.photo_camera,
+                    size: 32,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Tap to add photos (optional)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: _selectedPhotos.asMap().entries.map((e) {
+                return Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        File(e.value.path),
+                        width: 90,
+                        height: 90,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: -8,
+                      right: -8,
+                      child: GestureDetector(
+                        onTap: () =>
+                            setState(() => _selectedPhotos.removeAt(e.key)),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppColors.error,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          if (_selectedPhotos.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              '${_selectedPhotos.length} / 8 photos',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // Step 5 — Custom Questions
+  Widget _buildStep5Questions() {
     final suggestions = _getQuestionSuggestions();
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -641,11 +787,11 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Step 4 of 5',
+            'Step 5 of 6',
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
-          const _Label('Questions for your customers'),
+          const ListingFormLabel('Questions for your customers'),
           const SizedBox(height: 12),
           TextField(
             controller: _questionController,
@@ -671,7 +817,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
 
           // Added questions display
           if (_customQuestions.isNotEmpty) ...[
-            const _Label('Your questions'),
+            const ListingFormLabel('Your questions'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -714,7 +860,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
 
           // Suggestions section
           if (suggestions.isNotEmpty) ...[
-            const _Label('Quick add'),
+            const ListingFormLabel('Quick add'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -778,8 +924,8 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     );
   }
 
-  // Step 5 — Review & Submit
-  Widget _buildStep5() {
+  // Step 6 — Review & Submit
+  Widget _buildStep6Review() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -791,7 +937,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Step 5 of 5',
+            'Step 6 of 6',
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
@@ -897,62 +1043,6 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-// Shared helpers
-
-class _Label extends StatelessWidget {
-  final String text;
-  const _Label(this.text);
-
-  @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
-      );
-}
-
-class _PriceTypeButton extends StatelessWidget {
-  final String label;
-  final PriceType value;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _PriceTypeButton({
-    required this.label,
-    required this.value,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: selected ? AppColors.primary : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: selected ? Colors.white : AppColors.textSecondary,
-          ),
-        ),
       ),
     );
   }

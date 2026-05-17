@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -152,7 +153,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       );
     }
 
-    final calendarType = _selectedCalendarType ?? CalendarType.googleCalendar;
+    final calendarType = _selectedCalendarType ?? CalendarType.inApp;
 
     setState(() => _isProcessingPayment = true);
     try {
@@ -173,8 +174,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       debugPrint('❌ Booking error: $e');
       debugPrint('Stack trace: $stackTrace');
       if (mounted) {
+        String msg = e.toString();
+        if (e is DioException) {
+          final data = e.response?.data;
+          if (data is Map) msg = (data['message'] as String?) ?? msg;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Booking failed: ${e.toString()}')),
+          SnackBar(content: Text('Booking failed: $msg')),
         );
       }
     } finally {

@@ -71,11 +71,15 @@ class ProviderDashboardScreen extends ConsumerWidget {
               ),
             );
           }
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: listings.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (_, i) => _ListingTile(listing: listings[i]),
+          return RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () async => ref.invalidate(myListingsProvider),
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: listings.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (_, i) => _ListingTile(listing: listings[i]),
+            ),
           );
         },
       ),
@@ -189,9 +193,7 @@ class _ListingTile extends ConsumerWidget {
       trailing: PopupMenuButton<String>(
         onSelected: (value) {
           if (value == 'edit') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Edit coming soon')),
-            );
+            context.push('/provider/listings/${listing.id}/edit');
           } else if (value == 'delete') {
             _confirmDelete(context, ref);
           }

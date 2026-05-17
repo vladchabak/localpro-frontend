@@ -234,7 +234,7 @@ final nearbyListingsProvider =
 
 typedef NearbyListingsRef
     = AutoDisposeFutureProviderRef<List<NearbyListingModel>>;
-String _$createListingHash() => r'1cc47562dea1ff45b9cf58d36707ac3f9d3197a2';
+String _$createListingHash() => r'3f94080f549d72b7731b930bd7f7edfac16395be';
 
 /// See also [createListing].
 @ProviderFor(createListing)
@@ -364,7 +364,7 @@ class _CreateListingProviderElement
   ListingRequest get request => (origin as CreateListingProvider).request;
 }
 
-String _$verifyListingHash() => r'0fda787973cf2b6527d1c843b40137c78dfa491b';
+String _$verifyListingHash() => r'907c538ca19958de576612cbddd7c91e69058038';
 
 /// See also [verifyListing].
 @ProviderFor(verifyListing)
@@ -490,6 +490,139 @@ class _VerifyListingProviderElement
 
   @override
   String get id => (origin as VerifyListingProvider).id;
+}
+
+String _$listingReviewsHash() => r'ddd74be3d5cdc9cb00856ceb8aa77550d17f30f2';
+
+/// See also [listingReviews].
+@ProviderFor(listingReviews)
+const listingReviewsProvider = ListingReviewsFamily();
+
+/// See also [listingReviews].
+class ListingReviewsFamily
+    extends Family<AsyncValue<PageResponse<ReviewModel>>> {
+  /// See also [listingReviews].
+  const ListingReviewsFamily();
+
+  /// See also [listingReviews].
+  ListingReviewsProvider call(
+    String id,
+  ) {
+    return ListingReviewsProvider(
+      id,
+    );
+  }
+
+  @override
+  ListingReviewsProvider getProviderOverride(
+    covariant ListingReviewsProvider provider,
+  ) {
+    return call(
+      provider.id,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'listingReviewsProvider';
+}
+
+/// See also [listingReviews].
+class ListingReviewsProvider
+    extends AutoDisposeFutureProvider<PageResponse<ReviewModel>> {
+  /// See also [listingReviews].
+  ListingReviewsProvider(
+    String id,
+  ) : this._internal(
+          (ref) => listingReviews(
+            ref as ListingReviewsRef,
+            id,
+          ),
+          from: listingReviewsProvider,
+          name: r'listingReviewsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$listingReviewsHash,
+          dependencies: ListingReviewsFamily._dependencies,
+          allTransitiveDependencies:
+              ListingReviewsFamily._allTransitiveDependencies,
+          id: id,
+        );
+
+  ListingReviewsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.id,
+  }) : super.internal();
+
+  final String id;
+
+  @override
+  Override overrideWith(
+    FutureOr<PageResponse<ReviewModel>> Function(ListingReviewsRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ListingReviewsProvider._internal(
+        (ref) => create(ref as ListingReviewsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        id: id,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<PageResponse<ReviewModel>> createElement() {
+    return _ListingReviewsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ListingReviewsProvider && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin ListingReviewsRef
+    on AutoDisposeFutureProviderRef<PageResponse<ReviewModel>> {
+  /// The parameter `id` of this provider.
+  String get id;
+}
+
+class _ListingReviewsProviderElement
+    extends AutoDisposeFutureProviderElement<PageResponse<ReviewModel>>
+    with ListingReviewsRef {
+  _ListingReviewsProviderElement(super.provider);
+
+  @override
+  String get id => (origin as ListingReviewsProvider).id;
 }
 
 String _$mapSearchParamsHash() => r'376b1739628d037161b455939b1e2047c46a2967';
